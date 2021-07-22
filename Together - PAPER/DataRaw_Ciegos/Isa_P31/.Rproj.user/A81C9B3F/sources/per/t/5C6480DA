@@ -1,0 +1,32 @@
+{
+    "id": "5C6480DA",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1605695860611.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "expression": "P31IsRaw",
+        "caption": "P31IsRaw",
+        "totalObservations": 1300,
+        "displayedObservations": 1300,
+        "variables": 7,
+        "cacheKey": "A0F9443F",
+        "object": "P31IsRaw",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=P31IsRaw&cache_key=A0F9443F&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2314885436535043442,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1605695860611,
+    "read_only": false,
+    "read_only_alternatives": []
+}

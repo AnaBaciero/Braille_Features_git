@@ -1,0 +1,131 @@
+---
+title: "RawDataSets_TS"
+
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(readr)
+library(tidyverse)
+library(knitr)
+```
+
+
+# 1. Data Wrangling/formating
+
+
+After running the experiment we have a separate file for each participant (all files saved with file name **PnEx** where n is the participant number and x the experiment number; e.g., P1E1 = participant 1 in Experiment 1). These raw files have 4 columns of data:
+
+
+Item 1 |Item 2 |Key pressed | RT
+-------|-------|------------|-------
+       |       |            | 
+
+
+In order to carry out any anlyses we created a sigle file with the data for all participants, organized in a tidy manner:
+
+
+Subject|Item 1 |Item 2 |Key pressed | RT   | Accuracy |Experiment|
+-------|-------|-------|------------|------|----------|----------|
+       |       |       |            |      |          |          |
+
+
+```{r Prep the data set, message=FALSE, warning=FALSE}
+
+# The files are available at: OSF
+# The path needs to be adjusted to where the data files are stored.
+
+# P67E1 = Empty
+
+
+#Data1 = 260 trials + 5 practice items + S
+
+
+RawData <- list.files(pattern = "P") 
+
+RawData[RawData != "P67E1" & RawData != "P1E1" & RawData != "P85E1" & RawData != "P86E1" & RawData != "P87E1" & RawData != "P88E1" & RawData != "P89E1" & RawData != "P87E2" & RawData != "P88E2" & RawData != "P89E2" & RawData != "P82E1" & RawData != "P83E1"] -> ParticipantSet1
+
+Data1<-ParticipantSet1%>%
+  lapply(read_csv) %>% 
+  bind_rows %>%
+  separate(`IT1 IT2 KEY RT`,  c("IT1","IT2","f", "a","b","c","d","e", "Key","RT","miss","i"), sep = " ") %>%
+  mutate(Subject= rep(ParticipantSet1, each=266),
+         rubric = if_else(IT1==IT2,"m","n"),
+         accuracy = if_else(Key == rubric, 1,0),
+         Experiment = if_else(str_ends(Subject, "1"),1,2))%>%
+  group_by(Subject)%>%
+  slice(7:266)%>%
+  ungroup()%>%
+  select("Subject","IT1","IT2","Key","rubric", "RT","accuracy", "Experiment")
+      
+
+   
+#Data2 = 260 trials + 5 practice items
+
+RawData[RawData == "P1E1" | RawData == "P82E1" | RawData == "P83E1"] -> ParticipantSet2
+
+Data2<-ParticipantSet2%>%
+  lapply(read_csv) %>% 
+  bind_rows %>%
+  separate(`IT1 IT2 KEY RT`,  c("IT1","IT2","f", "a","b","c","d","e", "Key","RT","miss","i"), sep = " ") %>%
+  mutate(Subject= rep(ParticipantSet2, each=265),
+         rubric = if_else(IT1==IT2,"m","n"),
+         accuracy = if_else(Key == rubric, 1,0),
+         Experiment = if_else(str_ends(Subject, "1"),1,2))%>%
+  group_by(Subject)%>%
+  slice(6:265)%>%
+  ungroup()%>%
+  select("Subject","IT1","IT2","Key","rubric", "RT","accuracy", "Experiment")
+
+
+
+#Data3 = 190 trials + 5 practice items
+
+RawData[RawData == "P85E1" | RawData == "P86E1" | RawData == "P87E1" | RawData == "P88E1" | RawData == "P89E1"] -> ParticipantSet3
+
+
+Data3<-ParticipantSet3%>%
+  lapply(read_csv) %>% 
+  bind_rows %>%
+  separate(`IT1 IT2 KEY RT`,  c("IT1","IT2","f", "a","b","c","d","e", "Key","RT","miss","i"), sep = " ") %>%
+  mutate(Subject= rep(ParticipantSet3, each=195),
+         rubric = if_else(IT1==IT2,"m","n"),
+         accuracy = if_else(Key == rubric, 1,0),
+         Experiment = if_else(str_ends(Subject, "1"),1,2))%>%
+  group_by(Subject)%>%
+  slice(6:195)%>%
+  ungroup()%>%
+  select("Subject","IT1","IT2","Key","rubric", "RT","accuracy", "Experiment")
+
+
+
+#Data4 = 210 trials + 5 practice items
+
+RawData[RawData == "P87E2" | RawData == "P88E2" | RawData == "P89E2"] -> ParticipantSet4
+
+Data4<-ParticipantSet4%>%
+  lapply(read_csv) %>% 
+  bind_rows %>%
+  separate(`IT1 IT2 KEY RT`,  c("IT1","IT2","f", "a","b","c","d","e", "Key","RT","miss","i"), sep = " ") %>%
+  mutate(Subject= rep(ParticipantSet4, each=215),
+         rubric = if_else(IT1==IT2,"m","n"),
+         accuracy = if_else(Key == rubric, 1,0),
+         Experiment = if_else(str_ends(Subject, "1"),1,2))%>%
+  group_by(Subject)%>%
+  slice(6:215)%>%
+  ungroup()%>%
+  select("Subject","IT1","IT2","Key","rubric", "RT","accuracy", "Experiment")
+
+
+## All Data
+
+AllData_Raw <- Data1%>%
+  rbind(Data2, Data3, Data4)%>%
+  mutate(RT = as.double(RT))
+
+#save(AllData_Raw, file = "RawData_DePaul.RData")
+```
+

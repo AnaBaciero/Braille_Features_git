@@ -1,0 +1,671 @@
+---
+title             : "What determines the similarity of braille letters? A matrix of perceived letter similarity in braille by blind individuals"
+shorttitle        : "Braille letter similarity"
+
+author: 
+  - name          : "Ana Baciero"
+    affiliation   : "1,2"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Santa Cruz de Marcenado, 27. 28015, Madrid,Spain"
+    email         : "abaciero@nebrija.es"
+    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
+      - Conceptualization
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+  - name          : "Pablo Gomez"
+    affiliation   : "3"
+    role:
+      - Writing - Review & Editing
+  - name          : "Jon Andoni Duñabeitia"
+    affiliation   : "1,4"
+    role:
+      - Writing - Review & Editing
+  - name          : "Manuel Perea"
+    affiliation   : "1,5"
+    role:
+      - Writing - Review & Editing
+      
+affiliation:
+  - id            : "1"
+    institution   : "Universidad Antonio de Nebrija"
+  - id            : "2"
+    institution   : "DePaul University"
+  - id            : "3"
+    institution   : "California State University San Bernardino, Palm Desert Campus"
+  - id            : "4"
+    institution   : "The Arctic University of Norway"
+  - id            : "5"
+    institution   : "Universitat de València"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+
+  One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
+  
+  Two to three sentences of **more detailed background**, comprehensible  to scientists in related disciplines.
+  
+  One sentence clearly stating the **general problem** being addressed by  this particular study.
+  
+  One sentence summarizing the main result (with the words "**here we show**" or their equivalent).
+  
+  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
+  
+  One or two sentences to put the results into a more **general context**.
+  
+  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
+  
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : ["r-references.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+csl               : "apa.csl"
+documentclass     : "apa7"
+classoption       : "man"
+output            : papaja::apa6_pdf
+
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+library(tidyverse)
+library(dendextend)
+library(RColorBrewer)
+library(factoextra)
+library(dplyr)
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(142)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+TEXT INTRO
+
+26 basic letters of the Latin alphabet
+
+
+# Methods
+
+## Participants
+
+## Material
+
+## Procedure
+
+## Data analysis
+
+```{r data sets}
+
+RawdataBF <- miceadds::load.Rdata2( filename="RawdataBF.RData")
+CleanBF <- miceadds::load.Rdata2( filename="CleanBF.RData")
+BrailleDotsTable <- miceadds::load.Rdata2( filename="BrailleDotsTable.RData")
+
+```
+
+```{r}
+Different<- CleanBF%>%
+  filter(Rubric == "n")
+
+Descriptives_diff<- Different%>%
+  group_by(Pairs)%>%
+  summarise(MeanRT = mean(RT),
+            MEanAcc= mean(Accuracy))%>%
+  ungroup()%>%
+  mutate()
+
+
+
+Same<- CleanBF%>%
+  filter(Rubric == "m")
+
+
+```
+
+
+```{r Similarity matrices: ACCURACY}
+
+Different<- CleanBF%>%
+  filter(Rubric == "n")
+
+matrix.acc<-tapply(Different$Accuracy, list(Different$IT1, Different$IT2),mean)%>%
+  round(3)
+
+
+# Can we make it symmetric?
+
+Acc.Order1 <- Different%>%
+  filter(Order==1)%>%
+  group_by(ItNumber,Pairs)%>%
+  summarise(MAcc1 = mean(Accuracy))%>%
+  ungroup()
+
+Acc.Order2 <-Different%>%
+  filter(Order==2)%>%
+  group_by(ItNumber,Pairs)%>%
+  summarise(MAcc2 = mean(Accuracy))%>%
+  ungroup()
+
+Acc.orders <- bind_cols(Acc.Order1,Acc.Order2)%>%
+  mutate(difference = MAcc1 - MAcc2,
+         OrderMatters = if_else(difference > (abs(.05)),"T",""))
+
+t.test(Acc.orders$MAcc1,Acc.orders$MAcc2, paired = T)
+
+## YES
+
+sym.acc.matrix <- (matrix.acc + t(matrix.acc))/2
+
+
+#sym.acc.matrix%>%
+# heatmap (margins = c(1, 1))
+
+
+## for those whose acc differ in more than 5%: 
+
+n_acc<-Acc.orders%>%
+  filter(OrderMatters=="T") #33/325 differ in more than 5% accuracy. 
+
+
+```
+
+
+
+```{r Similarity matrices: RT}
+
+CorrectDifferent.BF<- CleanBF%>%
+  filter(Accuracy == 1,
+         Rubric == "n")%>%
+  mutate(DiscTime = RT - 0.7) #T0
+
+CorrectDifferent.norm <- CorrectDifferent.BF%>%
+  group_by(SubjectID)%>%
+  mutate(MRT_subj = mean(DiscTime))%>%
+  ungroup()%>%
+  mutate(normTime = DiscTime/MRT_subj)
+
+
+matrix.rt<-tapply(CorrectDifferent.norm$normTime, list(CorrectDifferent.norm$IT1, CorrectDifferent.norm$IT2),mean)%>%
+  round(3)
+
+########################################################################################################################################################
+
+# Can we make it symmetric?
+
+RT.Order1 <- CorrectDifferent.norm%>%
+  filter(Order==1)%>%
+  group_by(ItNumber,Pairs)%>%
+  summarise(MNRT1 = mean(normTime))%>%
+  ungroup()
+
+RT.Order2 <- CorrectDifferent.norm%>%
+  filter(Order==2)%>%
+  group_by(ItNumber,Pairs)%>%
+  summarise(MNRT2 = mean(normTime))%>%
+  ungroup()
+
+RT.orders <- bind_cols(RT.Order1,RT.Order2)%>%
+  mutate(difference = MNRT1 - MNRT2,
+         OrderMatters = if_else(difference > (abs(.05)),"T",""))
+
+t.test(RT.orders$MNRT1,RT.orders$MNRT2, paired = T)
+
+## YES
+
+#########################################################################################################################################################
+
+sym.rt.matrix <- (matrix.rt + t(matrix.rt))/2
+
+#sym.rt.matrix%>%
+#  heatmap (margins = c(1, 1))
+
+
+n_rt<-RT.orders%>%
+  filter(OrderMatters=="T")
+
+```
+
+
+```{r Hierarchical clustering}
+#Accuracy 
+
+dist.res.acc<-dist(sym.acc.matrix, method = "euclidian")
+
+        ## What linkage method to use
+          
+        ### define linkage methods
+        
+        m <- c( "average", "single", "complete", "ward")
+        names(m) <- c( "average", "single", "complete", "ward")
+        
+        ### function to compute agglomerative coefficient:
+        
+        ac1 <- function(x) {
+          cluster::agnes(dist.res.acc, method = x)$ac
+        }
+        
+        ### calculate agglomerative coefficient for each clustering linkage method
+        
+        sapply(m, ac1)
+        
+        ## we'll use ward's method (Note that agnes(*, method="ward") corresponds to hclust(*, "ward.D2"))
+
+
+dend.acc<- hclust(dist.res.acc, method = "ward.D2")%>%
+  as.dendrogram()
+
+plot(dend.acc)
+
+
+
+#RT 
+
+dist.res.rt<-dist(sym.rt.matrix, method = "euclidian")
+
+
+        ## What linkage method to use
+
+        ac2 <- function(x) {
+          cluster::agnes(dist.res.rt, method = x)$ac
+        }
+      
+        
+        sapply(m, ac2)
+        
+        ## we'll use ward's method
+
+
+dend.rt<- hclust(dist.res.rt, method = "ward.D2")%>%
+  as.dendrogram()
+
+plot(dend.rt)
+
+
+## Optimal number of clusters
+
+sym.acc.matrix1<- sym.acc.matrix%>%
+  gdata::lowerTriangle()%>%
+  as_data_frame()
+
+fviz_nbclust(sym.acc.matrix1, kmeans, method = "wss") +
+    geom_vline(xintercept = 4, linetype = 2)+
+  labs(subtitle = "Elbow method")
+
+
+sym.rt.matrix1<- sym.rt.matrix%>%
+  gdata::lowerTriangle()%>%
+  as_data_frame()
+
+fviz_nbclust(sym.rt.matrix1, kmeans, method = "wss") +
+    geom_vline(xintercept = 4, linetype = 2)+
+  labs(subtitle = "Elbow method")
+
+## 4 (both accuracy & rt)
+
+
+## Dendrograms w color
+
+dend.acc4<- dend.acc %>% 
+  set("branches_k_color", value = c( "dodgerblue2", "darkolivegreen3","darkorange2", "darkorchid3"), k = 4)%>%
+  plot(horiz =F, main = "Accuracy")
+
+dend.rt4<- dend.rt %>% 
+  set("branches_k_color", value = c("darkorchid3", "darkorange2","darkolivegreen3","dodgerblue2" ), k = 4)%>%
+  plot(horiz = F, main = "RT")
+
+
+
+
+
+
+cluster_assignments_acc <- cutree(hclust(dist.res.acc, method = "ward.D2"), 4)
+
+cluster_assignments_rt <- cutree(hclust(dist.res.rt, method = "ward.D2"), 4)
+
+
+#Group 1: a, b, c, d, e, f, g, h, i, j, (l, v)
+#Group 2: k, m, u, x
+#Group 3: n, o, y, z, (s)
+#Group 4: p, q, r, t, w, (s, l, v)
+
+```
+
+
+
+```{r}
+
+#braille features:
+
+
+stim.1 <- letters
+stim.2 <- letters
+
+pair <- array(dim=26*26)
+type <- array(dim = 26*26)
+
+Start<- as_data_frame(c("S"))%>%
+  rename(stimuli = value)
+
+
+for(i in 1:26){
+  for(j in 1:26){
+    if (stim.1[i] == stim.2[j]) {
+      type [(i-1)*26+j] <- 0
+    }
+    else {
+      type[(i-1)*26+j] <- 1
+    }
+    pair[(i-1)*26+j] <- paste(stim.1[i],stim.2[j])
+  }
+}
+
+type <- as.character(type)
+pairs <- as.character(pair)
+
+allpairs<- as.data.frame(cbind(pairs, type))
+
+
+alldifferentpairs <- allpairs%>%
+  filter(type== 1)%>%
+  mutate(Pairs = pairs)%>%
+  separate(pairs, c("IT1", "IT2"))%>%
+  select(Pairs, IT1, IT2)
+
+
+x<- BrailleDotsTable%>%
+  select(-DotPosition)
+colnames(x)<- c("IT1", "DotNumber_1",  "Dot1_1", "Dot2_1", "Dot3_1",  "Dot4_1",  "Dot5_1",  "Dot6_1")
+
+y<- BrailleDotsTable%>%
+  select(-DotPosition)
+colnames(y)<- c("IT2", "DotNumber_2",  "Dot1_2", "Dot2_2", "Dot3_2",  "Dot4_2",  "Dot5_2",  "Dot6_2")
+
+LetterFreq1<- read.csv("LetterFreq_Spanish_wikipedia.csv", sep= ";")%>%
+  rename(IT1 = Letra,
+         Freq1=perc_freq)
+
+LetterFreq2<- LetterFreq1%>%
+  rename(IT2 = IT1,
+         Freq2=Freq1)
+
+braille.features.1<- alldifferentpairs%>%
+  merge(x, by = "IT1")%>%
+  merge(y, by = "IT2")%>%
+  select(Pairs, IT1, DotNumber_1, Dot1_1, Dot2_1, Dot3_1, Dot4_1, Dot5_1, Dot6_1, IT2, DotNumber_2, Dot1_2, Dot2_2, Dot3_2, Dot4_2, Dot5_2, Dot6_2)%>%
+  group_by(Pairs)%>%
+  mutate(DotNumber_1 = as.numeric(DotNumber_1),
+         DotNumber_2 = as.numeric(DotNumber_2),
+         TotalDots_Pair = sum(DotNumber_1, DotNumber_2),
+         CommonRised1 = if_else(Dot1_1 == 1 & Dot1_2 == 1,2,0),
+         CommonRised2 = if_else(Dot2_1 == 1 & Dot2_2 == 1,2,0),
+         CommonRised3 = if_else(Dot3_1 == 1 & Dot3_2 == 1,2,0),
+         CommonRised4 = if_else(Dot4_1 == 1 & Dot4_2 == 1,2,0),
+         CommonRised5 = if_else(Dot5_1 == 1 & Dot5_2 == 1,2,0),
+         CommonRised6 = if_else(Dot6_1 == 1 & Dot6_2 == 1,2,0),
+         CommonRised = sum(CommonRised1,CommonRised2, CommonRised3, CommonRised4, CommonRised5, CommonRised6),
+         SharedDots = CommonRised/TotalDots_Pair)%>%
+  select(-CommonRised1, -CommonRised2, -CommonRised3, -CommonRised4, -CommonRised5, -CommonRised6)%>%
+  mutate(Vertical1_1 = if_else(Dot1_1 == 1 & Dot2_1 == 1,1,0),
+         Vertical1_2 = if_else(Dot3_1 == 1 & Dot2_1 == 1,1,0),
+         Vertical1_3 = if_else(Dot1_1 == 1 & Dot2_1 == 1 & Dot3_1 == 1,1,0),
+         Vertical2_1 = if_else(Dot4_1 == 1 & Dot5_1 == 1,1,0),
+         Vertical2_2 = if_else(Dot5_1 == 1 & Dot6_1 == 1,1,0),
+         Vertical2_3 = if_else(Dot4_1 == 1 & Dot5_1 == 1 & Dot6_1 == 1,1,0),
+         VerticalsIT1_c1 = if_else(Vertical1_1 == 1 | Vertical1_2 == 1 | Vertical1_3 == 1,1,0),
+         VerticalsIT1_c2 = if_else(Vertical2_1 == 1 | Vertical2_2 == 1 | Vertical2_3 == 1,1,0))%>%
+  select(-Vertical1_1, -Vertical1_2, -Vertical1_3, -Vertical2_1, -Vertical2_2, -Vertical2_3)%>%
+  mutate(Vertical1_1 = if_else(Dot1_2 == 1 & Dot2_2 == 1,1,0),
+         Vertical1_2 = if_else(Dot3_2 == 1 & Dot2_2 == 1,1,0),
+         Vertical1_3 = if_else(Dot1_2 == 1 & Dot2_2 == 1 & Dot3_2 == 1,1,0),
+         Vertical2_1 = if_else(Dot4_2 == 1 & Dot5_2 == 1,1,0),
+         Vertical2_2 = if_else(Dot5_2 == 1 & Dot6_2 == 1,1,0),
+         Vertical2_3 = if_else(Dot4_2 == 1 & Dot5_2 == 1 & Dot6_2 == 1,1,0),
+         VerticalsIT2_c1 = if_else(Vertical1_1 == 1 | Vertical1_2 == 1 | Vertical1_3 == 1,1,0),
+         VerticalsIT2_c2 = if_else(Vertical2_1 == 1 | Vertical2_2 == 1 | Vertical2_3 == 1,1,0))%>%
+   select(-Vertical1_1, -Vertical1_2, -Vertical1_3, -Vertical2_1, -Vertical2_2, -Vertical2_3)%>%
+  mutate(HorizontalIT1_1 = if_else(Dot1_1 == 1 & Dot4_1 == 1,1,0),
+         HorizontalIT1_2 = if_else(Dot2_1 == 1 & Dot5_1 == 1,1,0),
+         HorizontalIT1_3 = if_else(Dot3_1 == 1 & Dot6_1 == 1,1,0),
+         HorizontalIT2_1 = if_else(Dot1_2 == 1 & Dot4_2 == 1,1,0),
+         HorizontalIT2_2 = if_else(Dot2_2 == 1 & Dot5_2 == 1,1,0),
+         HorizontalIT2_3 = if_else(Dot3_2 == 1 & Dot6_2 == 1,1,0),
+         GapMiddle_IT1 = if_else(Dot2_1 == 0 & Dot5_1 == 0,1,0),
+         GapMiddle_IT2 = if_else(Dot2_2 == 0 & Dot5_2 == 0,1,0),
+         GapBottom_IT1 = if_else(Dot3_1 == 0 & Dot6_1 == 0,1,0),
+         GapBottom_IT2 = if_else(Dot3_2 == 0 & Dot6_2 == 0,1,0),
+         MirrorH = if_else(Pairs == "d f" | Pairs == "f d" | Pairs == "e i" | Pairs == "i e" | Pairs == "h j" |Pairs == "j h" |Pairs == "r w" |Pairs == "w r" , 1, 0),
+         MirrorV = if_else(Pairs == "m u" | Pairs == "u m" | Pairs == "n z" | Pairs == "z n" | Pairs == "p v" |Pairs == "v p" , 1, 0),
+         TotalFeatures_IT1 = sum(VerticalsIT1_c1,VerticalsIT1_c2, HorizontalIT1_1,HorizontalIT1_2,HorizontalIT1_3, GapMiddle_IT1, GapBottom_IT1),
+         TotalFeatures_IT2 = sum(VerticalsIT2_c1,VerticalsIT2_c2, HorizontalIT2_1,HorizontalIT2_2,HorizontalIT2_3, GapMiddle_IT2, GapBottom_IT2),
+         TotalFeatures = sum(TotalFeatures_IT1,TotalFeatures_IT2),
+         CommonVerticals_c1 = if_else(VerticalsIT1_c1 == 1 & VerticalsIT2_c1 == 1,1,0),
+         CommonVerticals_c2 = if_else(VerticalsIT1_c2 == 1 & VerticalsIT2_c2 == 1,1,0),
+         CommonVerticals = sum(CommonVerticals_c1, CommonVerticals_c2),
+         CommonHorizontals_1 = if_else(HorizontalIT1_1 == 1 & HorizontalIT2_1 == 1,1,0),
+         CommonHorizontals_2 = if_else(HorizontalIT1_2 == 1 & HorizontalIT2_2 == 1,1,0),
+         CommonHorizontals_3 = if_else(HorizontalIT1_3 == 1 & HorizontalIT2_3 == 1,1,0),
+         CommonHorizontals = sum(CommonHorizontals_1,CommonHorizontals_2,CommonHorizontals_3),
+         CommonGapsMiddle = if_else(GapMiddle_IT1 ==1 & GapMiddle_IT2 == 1, 1, 0),
+         CommonGapsBottom = if_else(GapBottom_IT1 ==1 & GapBottom_IT2 == 1, 1, 0),
+         CommonGaps = sum(CommonGapsMiddle,CommonGapsBottom))%>%
+  ungroup()
+  
+  
+  
+  braille.features.2<- braille.features.1 %>%
+    select(Pairs, CommonVerticals, CommonHorizontals, CommonGaps,TotalFeatures, TotalDots_Pair,CommonRised, SharedDots)%>%
+    mutate(SharedVerticals = CommonVerticals/TotalFeatures,
+           SharedHorizontals = CommonHorizontals/TotalFeatures,
+           SharedGaps = CommonGaps/TotalFeatures)
+  
+
+  
+m0 <- glmer(Accuracy ~ F1 + F2 + F3 + (1+ F1 + F2 + F3 |SubjectID) + (1|ItemNumber), data = Acc.tomodel, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m0)
+  
+  
+
+%>%
+  merge(LetterFreq2, by = "IT2")%>%
+  merge(LetterFreq1, by = "IT1")%>%
+  group_by(Pairs)%>%
+  mutate(PairFreq = sum(Freq1,Freq2))%>%
+  ungroup()%>%
+  select(Pairs, TotalDots_Pair,CommonRisen, CommonGaps, PairFreq)
+
+
+
+```
+
+
+
+
+
+
+
+##### ? ####################################################################################################################
+
+
+
+```{r Data for Models}
+
+br.feature.predictors<-braille.features.2%>%
+  select(Pairs, SharedDots,SharedVerticals,SharedHorizontals,SharedGaps)
+
+Acc.tomodel <- Different%>%
+  select(-Subject, -KEY, -Rubric,-RT, -Order)%>%
+  merge(br.feature.predictors, by = "Pairs")
+
+write.csv(Acc.tomodel,file = "Acc.tomodel.csv", sep = ",")
+
+Acc.tomodel <- read.csv("Acc.tomodel.csv", sep = ";")
+
+library(lme4)
+
+m1a<- glmer(Accuracy ~ SharedVerticals+SharedHorizontals+SharedGaps + (1+SharedVerticals+SharedHorizontals+SharedGaps|SubjectID) + (1|ItNumber), data = Acc.tomodel, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5))) #boundary (singular) fit: see ?isSingular
+summary(m1a) 
+
+
+#write_csv(Acc.tomodel, file = "AccuracyData_lme.csv")
+
+RT.tomodel <- CorrectDifferent.norm%>%
+  select(-Subject, -KEY, -Rubric,-Accuracy)%>%
+  merge(br.feature.predictors, by = "Pairs")%>%
+  mutate(TotalDots_Pair_s = as_factor(scale(TotalDots_Pair)),
+         CommonRisen_s = scale(CommonRisen),
+         CommonGaps_s = scale(CommonGaps),
+         PairFreq_s = scale(PairFreq))
+#write_csv(RT.tomodel, file = "RTCorrectData_lme.csv")
+
+```
+
+```{r Models Accuracy}
+
+Acc.tomodel<-read.csv("AccuracyData_lme.csv", sep = ";")
+RT.tomodel<-read.csv("RTCorrectData_lme.csv", sep = ";")
+
+#models with perceptual factors only:
+
+library(lme4)
+
+m1a<- glmer(Accuracy ~ TotalDots_Pair_s*CommonRisen_s*CommonGaps_s + (1+TotalDots_Pair_s*CommonRisen_s*CommonGaps_s|SubjectID), data = Acc.tomodel, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m1a)
+
+m2a <- glmer(Accuracy ~ TotalDots_Pair_s*CommonRisen_s*CommonGaps_s + (1+TotalDots_Pair_s*CommonRisen_s*CommonGaps_s|SubjectID), data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m2a)
+
+m3a<- glmer(Accuracy ~ TotalDots_Pair_s*CommonRisen_s (1+TotalDots_Pair_s*CommonRisen_s|SubjectID), data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m3a)
+
+m4a<- glmer(Accuracy ~ CommonRisen_s*CommonGaps_s + (1+CommonRisen_s*CommonGaps_s|SubjectID), data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m4a)
+
+m5a<- glmer(Accuracy ~ TotalDots_Pair_s*CommonGaps_s + (1+TotalDots_Pair_s*CommonGaps_s|SubjectID), data = Acc.tomodel, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m5a)
+
+m6a <- glmer(Accuracy ~ TotalDots_Pair_s + (1+ TotalDots_Pair_s |SubjectID), data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5))) 
+summary(m6a)
+
+m7a <- lmer(Accuracy ~ CommonRisen_s + (1+ CommonRisen_s|SubjectID), data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m7a)
+
+m8a <- glmer(Accuracy ~ CommonGaps_s + (1+ CommonGaps_s|SubjectID), data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m8a)
+
+#Frequency (main)
+
+m9a<- glmer(Accuracy ~ PairFreq_s + (1|SubjectID) , data = Acc.tomodel, family = binomial, control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(m9a)
+
+
+
+
+
+#brms
+library(brms)
+
+m1.acc.b<- brm(data = Acc.tomodel, 
+                     family = bernoulli(),
+                     Accuracy ~ CommonGaps_s*CommonRisen_s +
+                       (1+CommonGaps_s*CommonRisen_s|SubjectID),
+                     warmup = 1000,
+                     iter = 2000,
+                     chains = 4,
+                     inits = "random",
+                     cores = 4)
+
+
+
+
+m2.acc<- lme4::glmer(Accuracy ~ TotalDots_Pair_s*CommonGaps_s + (1+TotalDots_Pair_s*CommonGaps_s|SubjectID) + (1+TotalDots_Pair_s*CommonGaps_s|ItNumber), data = acc.tomodel, family = binomial)
+
+m3.acc<- lme4::glmer(Accuracy ~ CommonRisen_s*CommonGaps_s + (1+CommonRisen_s*CommonGaps_s|SubjectID) + (1+CommonRisen_s*CommonGaps_s|ItNumber), data = acc.tomodel, family = binomial)
+
+
+model1.acc.perceptual <- lme4::glmer(Accuracy ~ TotalDots_Pair_s+CommonRisen_s+CommonGaps_s + (1+TotalDots_Pair_s+CommonRisen_s+CommonGaps_s|SubjectID) + (1+TotalDots_Pair_s+CommonRisen_s+CommonGaps_s|ItNumber), data = acc.tomodel, family = binomial)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+
+
+
+# Custom these kendo, and place them in a list
+
+dl <- dendlist(
+  dend.acc %>% 
+    set("branches_k_color", value = c( "dodgerblue2", "darkolivegreen3","darkorange2", "darkorchid3"), k = 4),
+  dend.rt %>% 
+    set("branches_k_color", value = c("dodgerblue2", "darkolivegreen3", "darkorange2", "darkorchid3"), k = 4)
+)
+ 
+# Plot them together
+tanglegram(dl, 
+           common_subtrees_color_lines = F, highlight_distinct_edges  = TRUE, highlight_branches_lwd=F, 
+           margin_inner=3,
+           lwd=1
+)
+
+
+
+
+    #set("branches_lty", 1) %>%
+    #set("branches_k_color", value = c("skyblue", "orange", "grey"), k = 3)
+
+
+
+
+#dendRT.reorder <- reorder(dend.rt, 25:9)
+#plot(dendRT.reorder)
+#plot(dend.rt)
+
+
+
+```
+
+
+
+
+
+# Results
+
+# Discussion
+
+
+\newpage
+
+# References
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id="refs" custom-style="Bibliography"></div>
+\endgroup

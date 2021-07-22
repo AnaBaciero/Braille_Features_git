@@ -1,0 +1,25 @@
+{
+    "id": "FE0C1417",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1605699598038.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "id": "8131fd92a6f84a60a0300fc241209430",
+        "name": "RawDataSet1",
+        "title": "RawDataSet1"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 8367752027395355241,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1605699598038,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,19 @@
+"0","RawDataSet3 <- read_csv(""yP20_RTG_4"") %>%
+  mutate(Subject= rep(list.files(pattern = ""yP20_RTG_4""), 330))%>%
+  separate(`IT1 IT2 KEY RT`,c(""IT1"",""a"", ""IT2"",""b"",""c"",""d"",""e"",""f"",""g"",""KEY"", ""RT""), sep = "" "")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != ""S"",
+         IT1 !=""DESCANSO"")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, ""m"", ""n""),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+   slice(3:328)
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","Expected 11 pieces. Missing pieces filled with `NA` in 2 rows [1, 199]."

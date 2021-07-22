@@ -1,0 +1,32 @@
+{
+    "id": "7B7725F0",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1605694796106.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "expression": "RawBF",
+        "caption": "RawBF",
+        "totalObservations": 635,
+        "displayedObservations": 635,
+        "variables": 7,
+        "cacheKey": "A4D44F42",
+        "object": "RawBF",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=RawBF&cache_key=A4D44F42&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 19422013914873925,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1605694796106,
+    "read_only": false,
+    "read_only_alternatives": []
+}

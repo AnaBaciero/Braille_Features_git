@@ -1,0 +1,548 @@
+---
+title             : "The Tactile Eriksen Flanker Effect: A Time Course Analysis"
+shorttitle        : "Tactile Flanker"
+
+author: 
+  - name          : "Ana Baciero"
+    affiliation   : "1,2"
+    address       : "Santa Cruz de Marcenado, 27. 28015, Madrid,Spain"
+    email         : "abaciero@nebrija.es"
+  - name          : "Isabel Uribe"
+    affiliation   : "1"
+  - name          : "Pablo Gomez"
+    affiliation   : "3"
+
+
+
+affiliation:
+  - id            : "1"
+    institution   : "DePaul University"
+  - id            : "2"
+    institution   : "Universidad Nebrija"
+  - id            : "3"
+    institution   : "California State University San Bernardino, Palm Desert Campus"
+
+authornote: |
+
+  AB contributed to the original idea, carried out the data analysis, and was the primary writer of the manuscript.
+  IU ran participants and contributed to the analysis and the preparation of the manuscript.
+  PG developed the original idea for the experiment and the analyses, and contributed to the preparation of the manuscript.
+
+abstract: |
+  
+  In this paper, we present evidence for an Eriksen flanker effect in the tactile modality.  We report the results of an experiment in which we presented tactile stimuli that had either a vertical or a horizontal orientation; in each trial, the target stimulus was presented to the middle finger, while the flanker stimuli were presented to the index and the ring fingers.  We carried out distributional analyses of the latency data, and the results show a tactile flanker effect: an overall facilitation for congruent target-flanker trials relative to incongruent trials, and a higher the effect size for slower correct responses (higher quantiles) than for faster correct responses (lower quantiles).  While this congruency effect is similar to the one typically reported in the visual modality, there are differences between these two modalities as well, mainly related to the relative speed of error and correct responses. These differences suggest that some of the mechanisms resposible for the flanker effect differ across sensory modalities.
+  
+  
+
+
+keywords          : "Eriksen flanker, tactile attention, touch"
+wordcount         : "4177"
+
+bibliography      : ["refs.bib"]
+
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+header-includes:
+- \usepackage{braille}
+- \usepackage{color}
+
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+library(BayesFactor)
+library(tidyverse)
+library(lme4)
+library(cowplot)
+
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+In our daily life, we are exposed to large amounts of complex information that are received through our senses. To navigate the world, we selectively attend the relevant information and disregard the potentially irrelevant information. While most research on selective attention has been conducted in the visual modality, there is growing interest in the mechanisms underlying this ability in the sense of touch [see @dalton2017selective]. Touch is a singular sensory modality: unlike the other senses, the organ of tactile sensation is distributed along our whole body and it is the first sense that develops in the womb [@fulkerson2014first]. The study of tactile attention is important for both theoretical and applied reasons. On the one hand, to fully understand the mechanisms that underlie the processing of attended stimuli, it is important to determine which aspects are modality-independent and which are modality-dependent. On the other hand, given the growing interest in the development of technologies and devices that give tactile feedback [e.g., @GMI2019haptictech], it is important to understand how we perceive and recognize tactile information as well as the circumstances that facilitate or hinder such perception. 
+
+In this paper, we examined how tactile contextual irrelevant information affects the discrimination of attended stimuli. To do so, we created a tactile version of a well-known conflict paradigm, the Eriksen flanker task, in which we asked participants to identify the pattern of dots (either \braille{l} or \braille{:}) presented to the middle finger of their dominant hand while ignoring the distractors. Such distractors were either congruent or incongruent with the target and were presented simultaneously to the adjacent index and ring fingers. We analyzed how attended and unattended stimuli are processed as a function of time [^beyond].
+
+[^beyond]: It is worth noting that the exploration of the nature of the flanker effect and its relation to attentional processes is beyond the scope of the present article [see @dalton2017selective for a review on research tapping on the locus of selection; and @hommel2019no for a critical analysis on the construct of attention].
+
+Before diving into the details of our study, we first describe conflict paradigms and then we briefly review previous experiments on the processing of unattended stimuli in non-visual settings.
+
+## Conflict tasks
+
+Conflict tasks present stimuli that have both task-relevant and task-irrelevant dimensions. One of the most common conflict paradigms is the Eriksen flanker task [@eriksen1974effects], which was initially designed in the visual modality [see @stroop1935studies; or @simon1969reactions, for other conflict tasks]. In the flanker task, participants perform a classification of a target stimulus that is flanked by either congruent non-target stimuli (i.e., linked to the same response as the target), or incongruent non-target stimuli (i.e., linked to the opposite response as the target). Therefore, for this task, the relevant information is the identity of the target, whereas the irrelevant information is the identity of the stimuli that surrounds it. Critically, the classification of the target is more difficult when the flanking stimuli are incongruent than when they are congruent with the target, as shown by longer mean reaction times (RTs) and lower accuracy in the incongruent condition relative to the congruent condition. 
+
+While the flanker effect has been reported mainly in the visual modality, adaptations of the task have also been described for the auditory modality. For instance, @chan2005auditory showed that participants had longer response latencies when a target word (e.g., "bat") that came from a central speaker was presented flanked by non-target words that were incongruent (e.g., "bed") coming from lateral speakers than when the flanker words were congruent (e.g., "bat").
+ 
+More relevant for the present study, the influence of contextual stimuli in the processing of a target stimulus has also been demonstrated in the tactile modality. For example, @evans1991tactile asked subjects to identify the direction of a moving pattern of a stimulus presented at one fingertip while ignoring another moving stimulus presented at an adjacent fingertip which could move in the same or opposite direction (i.e., congruent vs incongruent conditions). They reported slower and less accurate responses when non-targets were incongruent than when they were congruent with the target. In a subsequent study, @evans1992perceptual found the same effect when the non-target stimulus was presented to non-adjacent fingers of the same hand when using static stimuli instead of moving stimuli, and across hands even when increasing the distance between them. Similarly, @driver1996multimodal presented participants with either one or two vibratory pulses simultaneously in both hands and were asked to report the number of pulses felt in one hand while ignoring the other and found a congruency effect that, interestingly, decreased as the distance between the hands increased [see also @soto2004tactile]. The dissimilarity in results regarding the effect size when increasing hand distance has been attributed to differences in methodology [see @soto2004tactile] because both the maximum hand distance and the nature of the stimuli were different across studies – note that the nature of the stimuli plays an important role since it gives rise to the activation of different sensory receptors [@gardner2013somatosensory]. Regardless of the specific mechanism in play, these experiments suggest that unattended tactile stimuli affect the processing of the attended stimuli. 
+
+While the studies described above reveal that there are conflict effects in the tactile modality, they are not set up as a classic flanker task because the target was not surrounded by irrelevant information [^1]. More importantly, they only analyzed measures of central tendency and did not examine the time course of the conflict. Time course analyses are crucial to understand the mechanisms underlying an effect. Indeed, in the visual modality, fine-grained analyses that go beyond average-level comparisons have revealed that the flanker effect is not constant over time [e.g., @gratton1992optimizing]. The time course of a tactile effect might help us discriminate between different hypotheses on the trajectory of the conflict. These ideas are discussed in the following paragraphs.
+
+[^1]: Note, however, that in the visual modality, single distractor setups are not uncommon [see for example @stuart2003overlay].
+
+## Beyond mean RTs
+
+While comparing the performance across conditions using mean RTs is an appropriate method to establish the presence of an effect, central tendency measurements are somewhat coarse if the goal is to uncover the temporal dynamics of cognitive function. Time course analyses are very useful in examining the mechanisms that underlie cognitive phenomena. Indeed, such analyses have revealed differences among seemingly equivalent conflict tasks in the visual modality [e.g., @pratte2010exploring], and these results have led to new, more sophisticated versions of visual selective attention tasks [e.g., @burle2014distributional; @hubner2019conflict]. In this paper we use, in addition to mean RT and mean accuracy, three methods to explore the time course of the tactile flanker effects: delta plots, quantile probability functions, and conditional accuracy functions (see Figure \ref{fig:RTmethods} for an example).
+
+*Delta plots* are residual quantile plots that display the difference in RT between conditions across the quantiles of RT distributions on the y-axis against the average RT for each of the quantiles on the x-axis. In the visual flanker task, delta plots have a positive slope, showing an increase of the flanker effect as RT increases [e.g., @gratton1992optimizing; @hubner2019conflict].
+
+*Quantile Probability Functions (QPFs)* display the RTs at the .1, .3, .5, .7, and .9 quantiles on the y-axis, and the response proportion on the x-axis for each condition and each response. This way, one can compare the relative speed of error and correct responses. In the visual flanker task, QPFs show that 1) the proportion of correct responses is higher for congruent trials; 2) for incongruent trials, error responses are faster than correct responses, and 3) correct responses to incongruent trials are slower than correct responses to congruent trials [e.g., @white2011diffusion].
+
+*Conditional Accuracy Functions (CAFs)* display the accuracies for responses that are grouped by their speed on the y-axis against the average RTs of the responses on each bin. In the visual flanker task, CAFs have revealed that accuracy for congruent trials is high and constant across RT quantiles, but for incongruent trials is relatively low for fast responses and increases as RT increases, approaching the level of the congruent condition for slow responses [e.g., @gratton1988pre; @hubner2019conflict; @stins2007advances].
+
+
+
+\begin{center}
+-Insert Figure \ref{fig:RTmethods} around here - 
+\end{center}
+
+
+
+
+```{r RTmethods, fig.cap="Response time and accuracy methods used in this paper. The data to used to generate this example was simulated, following the typical figures reported in research on flanker effects in the visual modality. The code is available in the online appendix."}
+knitr::include_graphics("figurestimecourse.pdf")
+```
+
+Given our focus on distributional features and the time course of the effects on the data, we believe it is *useful* [@box1976science] to think about the flanker task in terms of evidence accumulation models. While there are many versions of such models, they all share a common assumption: sensory stimulation is encoded into tokens of information that are accumulated until a decision criterion is reached. In many implementations, this accumulation of evidence is stochastic (meaning that it has an average rate, but also a variability). The advantage of this line of thought is that there is a robust tradition of evidence accumulation modeling in the visual modality [e.g., @brown2008simplest; @ratcliff1978a; @stone1960models]. Indeed, within this framework, several models have been proposed to account for the pattern of results revealed by delta plots, QPFs, and CAFs in the visual flanker task [see @hubner2012does; @ulrich2015automatic; @white2012test; @white2011diffusion]. 
+
+We find this form of modeling useful because we can implement different hypotheses of the tactile flanker effect. Specifically, we can think of three possible hypotheses of the tactile flanker effect that correspond to implementations of the evidence accumulation model (a process model) that, in turn, correspond to a statistical model (i.e., a model of the data): (1) Hypothesis$_0$: there is no tactile flanker effect; (2) Hypothesis$_S$: there is a tactile flanker effect, and the congruency between target and distractor affect the rate of evidence accumulation in a stationary way (hence the *S* subscript); (3) Hypothesis$_N$: there is a tactile flanker effect, and the congruency between target and distractor affect the rate of evidence accumulation early in a trial, but then attention can focus on the target only; (i.e., the effect of the evidence accumulation is non-stationary; hence the *N* subscript). Figure \ref{fig:models} shows (from left to right columns) the verbal hypotheses, the process model that explicitly implements the corresponding hypotheses, and the results of the three analytical methods explained above that would offer evidence supporting such hypothesis.
+
+It is worth noting that there are many possible ways to implement the hypothesis under consideration, we chose to think about them as evidence accumulation processes given the recent interest in that form of modeling; other researchers might prefer different architectures. This many-to-many relationship between verbal hypotheses, process models, and statistical models is not unique to the flanker task, and in fact, it is quite ubiquitous in science [see @mcelreath2018statistical, for a discussion of this issue in the context of statistical inference; and @gillespie1977sampling, for a classic example from evolutionary biology]. Our choice to think about the tactile flanker as the models presented in Figure \ref{fig:models} is, indeed, subjective and we prefer to make this subjective call explicit rather than to hide it under the rug. 
+
+
+\begin{center}
+-Insert Figure \ref{fig:models} around here - 
+\end{center}
+
+
+In sum, we conducted an experiment using a tactile version of the Eriksen flanker task to shed some light on how the conflict effect develops over time through the sense of touch. Particularly, we examined whether the influence of distractors on participant's responses changes as a function of response time.
+
+
+```{r models, fig.cap="Our mapping from hypotheses to process models to data models (i.e., central tendency measures, delta plots and CAFs).", out.width="6in"}
+knitr::include_graphics("models-theories_4.pdf")
+```
+
+
+# Method
+
+## Participants
+
+Thirty-three students from DePaul University participated for course-credit in an introductory psychology course. Also, the three authors participated in this study. None of the participants were braille readers.
+
+
+```{r}
+Rawflankers <- read_csv("Rawflankers.csv")
+DataFlankers <- Rawflankers%>%
+  filter(Subject!="P1") %>%
+  filter(Subject!="P6") %>%
+  filter(Subject!="P9")%>%
+  filter(RT<2.000) %>%
+  filter(RT>.100)
+  
+
+DataFlankers<- DataFlankers%>%
+  mutate(Subject = as.factor(Subject))%>%
+  mutate(KEY = as.factor(KEY))%>%
+  mutate(Con.Inc = as.factor(Con.Inc))%>%
+  mutate(Acc = if_else (Acc == T, 1, 0) )
+
+DataFlankers.stim<- DataFlankers%>%
+  mutate(Stim = if_else(IT2 == "3", "H", "V")) %>%
+  mutate(Stim=as.factor(Stim))
+```
+
+
+## Apparatus
+
+A refreshable braille display was used to present stimuli (Focus 40 Blue, Freedom Scientific). The display was placed in the pull-out keyboard tray of a desk to avoid participants seeing it, while the keyboard used to make the responses was placed on top of the desk. To present stimuli on the braille display and record participant's responses we created a shell script using bash syntax that displays the stimuli in the computer's terminal and utilized the OS-X’s VoiceOver accessibility feature to present the items in the terminal on the braille display[^osf].
+ 
+[^osf]: The online repository, available at https://osf.io/89p3c/ , provides the bash code and the stimuli lists we utilized to carry out this experiment along with the data collected, data analyses, and data wrangling scripts.
+
+
+## Material
+
+
+We used two braille characters as stimuli: braille pattern dots-123 (\braille{l}), and pattern dots-25 (\braille{:}); from now on we refer to them as the vertical and the horizontal stimulus, respectively. These characters were combined in arrays of three, where the first and last (the flankers) always matched and were either congruent or incongruent with the character in the middle (the target). As can be seen in Figure \ref{fig:trial}, congruent stimuli were \braille{l l l} and \braille{: : :}, and incongruent stimuli were \braille{: l :} and \braille{l : l}. These stimuli were presented on the refreshable braille display. Each participant perceived 168 trials, 50% congruent, presented in random order. 
+
+## Procedure
+
+
+```{r trial, fig.cap="A diagram of a congruent trial and an incongruent trial of the tactile flanker task.", out.width="6in"}
+knitr::include_graphics("TrialDiagram.jpg")
+```
+
+We asked participants to place their index, middle, and ring fingers of their dominant hand on three specific braille cells separated 1.8 cm (there was an empty cell in the braille display between each of the used cells; see Figure \ref{fig:trial}). Participants were told that a pattern of dots would appear underneath each of those fingertips. We asked them to report as fast and as accurately as possible, if the pattern presented to the middle finger was a vertical or a horizontal line of dots by pressing the keys labeled "\|" or "\–" , with their non-dominant hand, while ignoring the patterns presented on the other fingertips. Both the target and the flanker stimuli were presented on the braille display until a response was made, and the inter-trial interval (ITI) was one second. RTs and accuracy were recorded in each trial. The experimental session lasted approximately fifteen minutes. 
+
+\begin{center}
+-Insert Figure \ref{fig:trial} around here - 
+\end{center}
+
+
+# Results
+
+```{r, echo=FALSE}
+
+DataFlankers.stim %>%
+  filter(Acc==1) %>%
+  group_by(Con.Inc,Stim) %>%
+  summarize(`Mean RTcorrect`=round((mean(RT)*1000),0)) %>%
+  mutate(`Mean RTcorrect` = as.character(`Mean RTcorrect`))%>%
+  ungroup() -> mean_c
+
+DataFlankers.stim %>%
+  filter(Acc==0) %>%
+  group_by(Con.Inc,Stim) %>%
+  summarize(`Mean RTerror`=round((mean(RT)*1000),0)) %>%
+  mutate(`Mean RTerror` = as.character(`Mean RTerror`))%>%
+  ungroup() -> mean_e
+
+DataFlankers.stim %>%
+  group_by(Con.Inc,Stim) %>%
+  summarize(`Accuracy`=round(mean(Acc),3)) %>%
+  ungroup() -> mean_a
+
+#Table 1
+means.table<-merge(merge(mean_a, mean_c), mean_e)%>%
+  rename(Congruency = Con.Inc,
+         Target = Stim)
+  
+```
+
+```{r table, echo = FALSE}
+
+apa_table(means.table,caption = "Mean accuracy, correct RTs and error RTs (in ms) per congruency condition (TRUE = congruent, FALSE = incongruent) and target type (H = horizontal, V = vertical).")
+          
+```
+
+
+
+## Mean RTs and accuracy
+
+Participants who performed below 55% (n = 3), and trials in which responses were either faster than 100 ms or slower than 2000 ms were excluded from the analysis. Overall, 5271 trials were analyzed (6048 – trials from low accuracy participants – timeouts). Because we used braille cells (i.e., horizontal lines \braille{:} use two dots and vertical lines \braille{l} use three dots), the horizontal and vertical stimuli used in the experiment were different in their structure, which could influence their perceptual identifiability and discriminability [^hv]. We analyzed accuracy and RTs by congruency condition (i.e., congruent vs incongruent) and by target type (i.e., horizontal vs. vertical). Table 1 shows the means for accuracy, and RTs for correct and error responses for each of those variables.
+
+\begin{center}
+-Insert Table 1 around here - 
+\end{center}
+
+For RTs, we analyzed the data using a linear mixed effects model [lmer function: lme4 and lmerTest packages in R; @bates2015lmer4; and @lmerTest, respectively], The most complex model that converged was RT ~ Congruency condition + Target type + Congruency condition*Target type + (1|Subject), which indicated that there is evidence of the main effects of congruency ($B = -0.065, SE = 0.007, t = -8.940, p < 0.001$) and target type ($B = -0.06, SE = 0.007, t = -8.165, p < 0.001$), as well as an interaction between them ($B = 0.07, SE = 0.015, t = 4.752, p < 0.001$), revealing that the flanker congruency effects are larger in the horizontal than in the vertical target type. 
+
+For accuracy, we analyzed the data using a generalized linear mixed effects model  [glmer function: lme4 package in R; @bates2015lmer4]. The most complex model that converged was Accuracy ~ Congruency condition + Target type + Congruency condition*Target type + (1|Subject), which revealed main effects of congruency ($B = 1.486, SE = 0.097, z = 15.310, p < 0.001$) and target type ($B = 0.484, SE = 0.096, z = 5.015, p < 0.001$), but there were no signs of an interaction between the two factors ($B = 0.144, SE = 0.193, z = 0.746, p = 0.456$). 
+
+Therefore, the task used in the present experiment produced a substantial flanker effect: responses to congruent trials were more accurate and faster than to incongruent trials. This effect is present in horizontal and vertical target stimuli. However, responses to horizontal stimuli were slower than for the vertical stimuli, which indicates that the horizontal target (\braille{:}) was more difficult to recognize than the vertical target (\braille{l}); (see Figure \ref{fig:beeplots}).
+
+\begin{center}
+-Insert Figure \ref{fig:beeplots} around here - 
+\end{center}
+
+
+[^hv]: We thank an anonymous reviewer for noticing this difference between the horizontal and vertical stimuli, and for suggesting these analyses.   
+
+
+
+
+
+```{r beeplots,  echo = FALSE, , fig.cap="Mean RT (left) and accuracy (right) per target type and congruency conditions. Each soft-colored shape represent the mean of a subject in that particular condition while the means per condition across subjects are shown in hard-colored shapes."}
+
+DataFlankers.stim %>%
+  rename(Congruent = Con.Inc) ->Data.stim
+
+Data.stim%>%
+  group_by(Subject,Stim,Congruent)%>%
+  summarise(mean(Acc)) -> check
+ 
+DataFlankers.stim %>%
+  filter(Acc==TRUE)%>%
+  rename(Congruent = Con.Inc)->DataFlankers.correct
+
+par(mfrow=c(1,2))
+
+
+apa_beeplot(
+    data = DataFlankers.correct
+  , id = "Subject"
+  , dv = "RT"
+  , factors = c("Stim","Congruent")
+  , dispersion = within_subjects_conf_int
+  , main = "Latency"
+  , ylab = "RT"
+  , xlab = "Target type"
+  , args_points = list(cex = 1.5, bg = c("skyblue4", "indianred3", "seagreen4"), col = "white")
+  , args_swarm = list(cex = 1.2)
+  , args_error_bars = list(length = 0.02, col = "grey20")
+  , args_legend = list(x = "bottom", inset = 0.05)
+  , args_y_axis = list(las = 1)
+)
+apa_beeplot(
+    data = Data.stim
+  , id = "Subject"
+  , dv = "Acc"
+  , factors = c("Stim","Congruent")
+  , dispersion = within_subjects_conf_int
+  , main = "Accuracy"
+  , ylab = "Proportion correct"
+  , xlab = "Target type"
+  , args_points = list(cex = 1.5, bg = c("skyblue4", "indianred3", "seagreen4"), col = "white")
+  , args_swarm = list(cex = 1.2)
+  , args_error_bars = list(length = 0.02, col = "grey20")
+  , args_legend = list(x = "bottom", inset = 0.05)
+  , args_y_axis = list(las = 1)
+)
+
+
+```
+
+
+```{r inferentials flanker effect, echo=FALSE, warning=FALSE, eval=FALSE}
+
+# Contrast Con.Inc (incongruent = -0.5, congruent = 0.5) and Stim (H = -0,5, V = 0.5), center in 0
+
+DataFlankers.correct.model <- DataFlankers.correct
+contrasts(DataFlankers.correct.model$Congruent) <- c(-.5, .5)
+contrasts(DataFlankers.correct.model$Stim) <- c(-.5, .5)
+
+
+F_ModelRT<- lmerTest::lmer(RT ~ Congruent * Stim + (1|Subject), data = DataFlankers.correct.model)
+F_ModelRT_Results <- summary(F_ModelRT)
+
+
+Data.stim.model<- Data.stim
+contrasts(Data.stim.model$Congruent) <- c(-.5, .5)
+contrasts(Data.stim.model$Stim) <- c(-.5, .5)
+
+F_ModelAcc<- glmer(Acc~ Congruent * Stim + (1|Subject) ,data = Data.stim.model, family = binomial)
+F_ModelAcc_Results <- summary(F_ModelAcc)
+
+```
+
+
+## Time-course analyses
+
+For the analysis of the effect size over time, we used the delta plot technique: quantile by quantile residual plot that accentuates distributional differences across conditions [@de1994conditional]. RTs per condition and participant at the .1, .3, .5, .7, and .9 quantiles were calculated, then, the difference between conditions for every quantile was computed per subject and averaged across subjects (see Figure \ref{fig:delta}). The delta plot describing the mean effect size across quantiles has a positive slope and an intercept above zero. In other words, the flanker effect is present across all quantiles and increases for higher quantiles (slower responses). We submitted the data per participant to a linear mixed effects model [lme4 package in R; @bates2015lmer4]. The most complex model that converged was delta ~ mean RT + (1|Subject), showing evidence of a positive slope ($B = 0.14, SE = 0.03, t = 5.84, p < 0.001$).
+
+\begin{center}
+-Insert Figure \ref{fig:delta} here - 
+\end{center}
+
+
+```{r delta, echo = FALSE, , fig.cap="Delta plot: effect over time. Each dot represents the mean RT at the .1, .3, .5, .7 and .9 quantiles."}
+
+DataFlankers %>%
+  group_by(Subject,Con.Inc,Acc) %>%
+  summarise(q1=quantile(RT, .1),
+            q3=quantile(RT, .3),
+            q5=quantile(RT, .5),
+            q7=quantile(RT, .7),
+            q9=quantile(RT, .9))%>%
+  ungroup()%>%
+  gather(key = Quantile, value = RT, -Subject, -Con.Inc, -Acc)%>%
+  mutate(Quantile = as.factor(Quantile))%>%
+  mutate(RT = RT*1000) -> Q.S
+
+
+RT.Delta.correct<- Q.S%>%
+  filter(Acc==T)%>%
+  select(-Acc)%>%
+  group_by(Subject, Quantile)%>%
+  arrange(Subject, Quantile, desc(Con.Inc))%>%
+  mutate(MRT = (mean(RT)),
+         Delta = (diff(RT)))%>%
+  ungroup()%>%
+  group_by(Con.Inc, Quantile)%>%
+  mutate(MRT.AS.PC = mean(RT))%>%
+  ungroup()%>%
+  group_by(Subject,Quantile)%>%
+  mutate(Delta.AS = diff(MRT.AS.PC),
+         MRT.AS.AC = mean(MRT.AS.PC))%>%
+  ungroup()
+  
+
+Delta<- ggplot(RT.Delta.correct, mapping = aes(x=MRT.AS.AC, y=Delta.AS, group = 1)) +
+  geom_line(lwd = .7 )+
+  geom_point(size = 2.5)+
+  ylim(c(0, 105)) +
+  xlim (c(690, 1350))+
+  xlab("RT (ms)") +
+  ylab("Congruency Effect (Delta)") +
+  theme_apa()
+
+
+Delta
+```
+
+```{r lmer delta, echo = FALSE, warning=FALSE, eval=FALSE}
+
+RT.Delta.correct%>%
+filter(Con.Inc==TRUE) ->  Delta.model.data
+
+lmer(Delta~ MRT + (1|Subject), data= Delta.model.data)->delta.lmer
+#lmer(Delta~ MRT + I(MRT^2)+(1|Subject), data= Delta.model.data)->delta.quad.lmer
+
+resultsDelta<-summary(delta.lmer)
+
+```
+
+
+For the analysis of the accuracy data over time, we used quantile probability functions (QPFs) and conditional accuracy functions (CAFs). As explained earlier, the QPFs inform about the distributions of response times for correct and error responses per condition (i.e., RT distributions for error-congruent, error-incongruent, correct-incongruent, and correct-congruent). The CAFs reveal how accuracy per condition changes as a function of time (i.e., mean accuracy per RT quantile for congruent and for incongruent trials).
+
+To create the QPF, we calculated the proportion of errors and correct responses for the congruent and the incongruent trials and averaged them across participants. Then, for each response (i.e., error responses and correct responses to congruent trials, and error and correct responses to incongruent trials), we computed the mean RTs at the .1, .3, .5, .7, and .9 quantiles and average them across subjects (these averaged quantiles are also known as Vincentiles). Because there were few error responses to congruent trials, only the median for that condition was calculated [see @white2011diffusion]. In the QPF plot, we used the error/correct proportions to place points in the x-axis, and the RTs at the quantiles place the points in the y-axis (see Figure \ref{fig:QPF}). The QPF shows the typical flanker effect: congruent trials yielded more accurate responses than the incongruent trials, and correct responses to congruent trials were faster than correct responses to incongruent trials. Moreover, the difference in response times between congruent and incongruent trials increases slightly as responses get slower (i.e., higher quantiles). 
+
+
+\begin{center}
+-Insert Figure \ref{fig:QPF} around here - 
+\end{center}
+
+To create the conditional accuracy functions (CAFs), we calculated the mean accuracy per condition within the five time-bands with an equal number of responses regardless of accuracy. As can be seen in Figure \ref{fig:CAF}, accuracy for the congruent condition was higher than for the incongruent condition across all RT quantiles and this difference is approximately constant over time.
+
+\begin{center}
+-Insert Figure \ref{fig:CAF} around here - 
+\end{center}
+
+
+```{r QPF, echo = FALSE, fig.cap="Quantile probability functions: Distribution of RTs to *congruent* (black squares) and *incongruent* (white squares) trials. The two right columns are correct responses. The two left columns are error responses."}
+
+Proportions<- DataFlankers %>%
+  group_by(Con.Inc)%>%
+  mutate(propCorrect = mean(Acc),
+         propError = 1-propCorrect)%>%
+  ungroup()%>%
+  group_by(Con.Inc, propError, propCorrect)%>%
+  summarise()%>%
+  ungroup()
+
+QPF<- Q.S%>%
+  group_by(Con.Inc, Acc, Quantile)%>%
+  summarize_if(is.numeric, mean)%>%
+  merge(Proportions)
+QPF%>%
+  filter(Acc==0 & Con.Inc == T & Quantile == "q5") ->median.error.con
+QPF%>%
+  filter(Acc==0 & Con.Inc == F) ->error.inc
+QPF.Error.med <- rbind(median.error.con , error.inc)
+QPF%>%
+  filter(Acc==1) -> QPF.Correct
+
+#Plot
+
+QPF.plot<- ggplot() +
+  geom_point(QPF.Correct, mapping = aes(x=propCorrect, y=RT, shape = Con.Inc), size = 3)+
+  geom_point(QPF.Error.med, mapping = aes(x=propError, y=RT, shape = Con.Inc), size = 3)+
+  scale_shape_manual(values=c(0,15), labels = c("Incongruent", "Congruent"))+
+  theme_apa()+
+  theme(text = element_text(size=10))+
+  xlim(c(0,1))+
+  xlab(c("Response Proportions"))+
+  ylab(c("RT (ms)"))+
+  ylim(700, 1500)+
+  geom_text(
+    aes(label = c("Error", "Correct"), x = c(0.14, 0.85), y = 1450))+
+  theme(legend.title = element_blank())
+
+QPF.plot
+
+```
+
+```{r CAF, echo = FALSE, fig.cap="Conditional accuracy function: Mean accuracy for *congruent* (black squares) and *incongruent* (white squares) trials as a function of response time"}
+
+#CAF
+
+rawdata.quant.subj<- DataFlankers %>%
+  group_by(Subject)%>%
+  mutate(q1=quantile(RT, .1),
+         q3=quantile(RT, .3),
+         q5=quantile(RT, .5),
+         q7=quantile(RT, .7),
+         q9=quantile(RT, .9),
+         Quantile = if_else(RT <= q1, "q1",
+                         if_else(RT > q1 & RT <=q3, "q3",
+                                 if_else(RT > q3 & RT <=q5, "q5",
+                                         if_else(RT > q5 & RT <=q7, "q7",
+                                                 if_else(RT > q7 & RT <=q9,"q9","error"))))))%>%
+  select(-q1,-q3,-q5,-q7,-q9)%>%
+  filter(Quantile !="error")%>%
+  ungroup()
+
+Acc.quant.cond <- rawdata.quant.subj%>%
+  group_by(Subject, Quantile, Con.Inc)%>%
+  summarize(MAcc.S.Q.C = mean(Acc), 
+            MRT.S.Q.C = mean(RT))%>%
+  ungroup()%>%
+  group_by(Subject, Quantile)%>%
+  mutate(deltaAcc = diff(MAcc.S.Q.C),
+         MRT.Q.S = mean(MRT.S.Q.C))%>%
+  ungroup()%>%
+  group_by(Quantile,Con.Inc)%>%
+  mutate(MAcc.Q.C = mean(MAcc.S.Q.C),
+         MRT.Q.C = mean(MRT.S.Q.C))%>%
+  ungroup()
+
+#Plot
+
+CAF.plot<- ggplot(Acc.quant.cond, mapping = aes(x=MRT.Q.C, y=MAcc.Q.C,group = Con.Inc, shape = Con.Inc)) +
+  geom_point(size = 3)+
+  scale_shape_manual(values=c(0,15), labels=c("Incongruent", "Congruent"))+
+  geom_line(lwd = .5)+
+  theme_apa()+
+  ylim(c(.5, 1))+
+  theme(text = element_text(size=10))+
+  xlab("RT(ms)") +
+  ylab("Accuracy")+
+  labs(shape = "Congruent")+
+  theme(legend.title = element_blank(),
+        legend.position = c(0.8, 0.27))
+  
+
+CAF.plot
+
+```
+
+
+
+
+# Discussion
+
+We created a tactile flanker task to examine whether there is a flanker congruency effect in the tactile modality and to explore the temporal dynamics of the responses. To do so, we asked participants to focus their attention on the middle finger of their dominant hand, where we presented the target braille pattern (either \braille{:} or \braille{l}), and, simultaneously, two distractors were presented to the adjacent ring and index fingers, which could be congruent ( i.e., \braille{: : :} or \braille{l l l}) or incongruent (i.e., \braille{: l :} or \braille{l : l}) with the target. Participants had to identify the target by pressing one of the two response keys (i.e., "\|"  or "\–").
+
+Results showed a robust tactile flanker effect: responses to congruent trials were faster and more accurate than responses to incongruent trials. Hence, we extended previous research on tactile congruency effects [@driver1996multimodal; @evans1991tactile; @evans1992perceptual; @soto2004tactile], this time using two distractors that surrounded the target (i.e., a scenario more similar to the demonstrations of the flanker effect in the visual modality). We further analyzed the data to explore the temporal dynamics of the tactile flanker effect, finding some similarities and differences with the standard results in the visual modality. It is worth noting that given the numerous differences between tactile and visual processing, as well as the differences in methodology, we cannot interpret equally the results found in the present study to those found in the visual modality. However, we can compare the qualitative features of results that may be modulated by modality. 
+
+The delta plot from the present experiment shows that the difference in RT between congruent and incongruent trials increases as RT increases. Thus, tactile contextual information (irrelevant to the task) influences participant’s response decision more for slow responses than for fast responses. Consistent with our results, delta plots in the visual modality show an increase of the congruency effect as responses get slower [e.g., @gratton1992optimizing; @hubner2019conflict]. From these results we cannot conclude that the tactile and visual flanker effects are equivalent, since positive-going delta plots are common to many cognitive tasks (in fact, there are the most common pattern of results across many manipulations). What results reveal is that the time course of the flanker effect shown by delta plots in the tactile modality is not qualitative different from the one described in the visual modality. That is, the basic features of delta plots do not seem sensible to the modality differences (which does not mean that there is none). Interestingly, the QPF and CAF obtained from our experiment do not mimic those reported in the visual modality literature. In the visual flanker task, QPFs show that error responses to incongruent trials are faster than correct responses to both congruent and incongruent trials [e.g., @white2011diffusion], while the QPF reported in this article shows that correct responses to congruent trials are faster than both correct and error responses to incongruent trials. Moreover, the difference between the distributions of incongruent-correct and incongruent-error responses is small. With respect to CAFs, in the visual flanker task it has been shown that for incongruent trials accuracy shows an increase over time (it is very low for fast responses, increasing to nearly perfect levels as responses get slower), but for congruent trials accuracy is nearly perfect across all response times [@gratton1992optimizing; @hubner2019conflict; @stins2007advances]. However, the CAF obtained in the present experiment shows that accuracy is higher for congruent trials than for incongruent trials over time, and that the difference between does not decrease for higher RT quantiles. In fact, the tactile flanker CAF shown in this article is more in line with the CAFs from Simon effects [e.g., Figure 11 in @hubner2019conflict]. Given that QPFs and CAFs in the tactile modality are so different from the ones in the visual modality, we can rule out a total task equivalency or a common reason (like shared verbal encoding of responses e.g. "vertical", "horizontal") for the tactile and the visual flanker effects. 
+
+Within the evidence-accumulation framework, our findings are in line with Hypothesis$_S$ (second row in Figure \ref{fig:models}), which suggests that there is a flanker effect and that the relevant information to make a decision was accumulated in a stationary manner. In other words, in the sense of touch, the noise that the distractors add to the accumulation of relevant evidence seems constant over time. However, the results typically reported in the visual flanker literature seem to be more in line with Hypothesis$_N$ (third row in Figure \ref{fig:models}), which explains that the congruency between target and distractor influence the accumulation of evidence early in a trial, but after some time attention can focus only on the target. Indeed, in the visual modality such results have yielded some debate regarding the way such attentional control works [see @hubner2012does; @hubner2019conflict; and @white2011diffusion]. 
+
+In sum, we found a tactile flanker effect that has both similarities and differences with the visual flanker effect[^add]. This is taken as evidence supporting that the cognitive processes underlying the response decision in the tactile flanker task, from the sensory input to the motor response, are not totally equivalent to those in the visual flanker task. We believe these results offer a start point to further research in different modalities to explore which aspects of the decision process are dependent of the sensory modality. Moreover, such investigation has real applied implications for the growing haptic technology field. Technological developments that focus on a specific sensory modality can be optimized using knowlege about both the modality-specific and the modality-independent cognitive processes that underlie perception.  
+  
+
+
+[^add]: Additionally, we found that the tactile flanker effect was greater for vertical stimuli than for horizontal stimuli, indicating that the horizontal braille pattern was more difficult to detect than the vertical one. Further research is needed to clarify whether those results are a product of the orientation of the stimuli, or of the larger sensory field activated by the vertical stimuli (3 dots) in comparison the horizontal one (2 dots).
+
+# Open Practices
+
+The online repository, available at https://osf.io/89p3c/ , provides the bash code and the stimuli lists we utilized to carry out this experiment, along with the data analyses and data wrangling scripts.
+
+The experiment was not pre-registered.
+
+
+\newpage
+
+# References
+```{r create_r-references}
+r_refs(file = "refs.bib")
+```
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+<div id = "refs"></div>
+\endgroup

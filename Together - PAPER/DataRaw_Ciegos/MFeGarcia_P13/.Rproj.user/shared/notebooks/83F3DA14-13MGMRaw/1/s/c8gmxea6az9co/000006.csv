@@ -1,0 +1,5 @@
+"0","P13MGMRaw<-RawDataSet1%>%
+  bind_rows(RawDataSet2,RawDataSet3)
+"
+"2","Error in list2(...) : objeto 'RawDataSet3' no encontrado
+"

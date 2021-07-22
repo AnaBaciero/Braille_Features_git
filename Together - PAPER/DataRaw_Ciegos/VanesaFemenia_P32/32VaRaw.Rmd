@@ -1,0 +1,58 @@
+---
+title: "28BeRaw"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+# Raw data set
+Letter "m" = "same", letter "n" = "different".
+
+The 676 letter combinations were divided into 4 lists (162 different (L2&L3) + 163 different (L1&L4)) with 1 break, S & 3 practice
+
+```{r}
+#Raw with no practice, no S, and no break
+
+RawDataSet1 <- list.files(pattern = "xP32_") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "xP32_"), each=331))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(4:329)%>%
+  ungroup()
+
+RawDataSet2 <- list.files(pattern = "yP32_") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "yP32_"), each=329))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(4:327)%>%
+  ungroup()
+
+
+P32VaRaw<-RawDataSet1%>%
+  bind_rows(RawDataSet2)
+
+save(P32VaRaw, file = "P32VaRaw.RData")
+  
+```
+  
+  

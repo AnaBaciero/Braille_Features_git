@@ -1,0 +1,21 @@
+"0",""
+"0","different <- as_data_frame(combn(letters, 2), row.names = T)%>%"
+"0","  t()%>%"
+"0","  as_data_frame()%>%"
+"0","  sample_frac()"
+"2","The `x` argument of `as_tibble.matrix()` must have unique column names if `.name_repair` is omitted as of tibble 2.0.0.
+Using compatibility `.name_repair`.
+[90mThis warning is displayed once every 8 hours.[39m
+[90mCall `lifecycle::last_warnings()` to see where this warning was generated.[39m"
+"0","different1<- different%>%"
+"0","  unite(""stimuli"", V1:V2, sep = ""  "")%>%"
+"0","  mutate(ID = paste(""AB"", 1:325, sep = ""_""))%>%"
+"0","  mutate(stimuli = paste(""    "", stimuli, ""    ""))"
+"0",""
+"0","different2<- different%>%"
+"0","  select(V2, V1)%>%"
+"0","  unite(""stimuli"", V2:V1, sep = ""  "")%>%"
+"0","  mutate(ID = paste(""BA"", 1:325, sep = ""_""))%>%"
+"0","  mutate(stimuli = paste(""    "", stimuli, ""    ""))"
+"0",""
+"0","#All_Stimuli<- bind_rows(same.130.ID, different1,different2)"

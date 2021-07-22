@@ -1,0 +1,195 @@
+---
+title: "JP"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+# Raw data set
+Letter "m" = "same", letter "n" = "different".
+
+```{r}
+RawDataSet <- list.files( pattern = "P") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "P"), each=268))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))
+
+#No practice
+RawBF<- RawDataSet%>%
+  group_by(Subject)%>%
+  slice(7:266)%>%
+  ungroup()
+
+MAcc<- RawBF%>%
+  group_by(Subject)%>%
+  summarise(MeanAcc = mean(Accuracy))
+RawBF%>% 
+  select(IT1, Subject)%>%
+  group_by(Subject)%>%
+  count()
+
+RawBF%>% 
+  group_by(KEY)%>%
+  count()
+
+RawBF <- RawBF%>%
+  filter(KEY == "m" | KEY == "n")
+
+MRT<- RawBF%>%
+  group_by(Subject)%>%
+  summarise(MeanRT = mean(RT))
+
+RawBF%>%
+  filter(RT < .1 | RT > 10)
+
+DataBF<- RawBF%>%
+  filter(RT > .1 & RT < 10)
+
+MGM<- DataBF%>%
+  ungroup()%>%
+  unite("pairs", 2:3, remove = FALSE, sep = "  ")%>%
+  distinct(pairs)
+
+```
+
+```{r all combinations}
+
+stim.1 <- letters
+stim.2 <- letters
+
+pair <- array(dim=26*26)
+type <- array(dim = 26*26)
+
+Start<- as_data_frame(c("S"))%>%
+  rename(stimuli = value)
+
+
+for(i in 1:26){
+  for(j in 1:26){
+    if (stim.1[i] == stim.2[j]) {
+      type [(i-1)*26+j] <- 0
+    }
+    else {
+      type[(i-1)*26+j] <- 1
+    }
+    pair[(i-1)*26+j] <- paste(stim.1[i],stim.2[j])
+  }
+}
+
+type <- as.character(type)
+pairs <- as.character(pair)
+
+all<- as.data.frame(cbind(pairs, type))
+
+pairsonly<- all%>%
+  separate(pairs, c("IT1","TI2"))%>%
+  ungroup()%>%
+  unite("pairs", 1:2, remove = FALSE, sep = "  ")%>%
+  select(pairs)%>%
+  distinct(pairs)
+
+```
+
+# Pairs left CPS
+```{r}
+MGM_Left <- anti_join(pairsonly,MGM)
+```
+
+#List for CPS
+```{r}
+
+# Different___________________________________
+
+MGM_Left 
+
+## x274 --> divide in 2 lists: 137 + 137
+
+## Randomize 
+
+MGM_Left_r<- MGM_Left%>%
+  sample_frac()
+
+MGM_1<- MGM_Left_r%>%
+  slice(1:137)%>%
+  rename(stimuli = pairs)%>%
+  mutate(stimuli = paste("    ", stimuli, "    "))
+
+MGM_2<- MGM_Left_r%>%
+  slice(138:274)%>%
+  rename(stimuli = pairs)%>%
+  mutate(stimuli = paste("    ", stimuli, "    "))
+
+
+# Same_____________________________________
+
+same.rw<- all%>%
+  filter(type==0)%>%
+  select(pairs)%>%
+  separate(pairs, c("V1", "V2"))%>%
+  unite(pairs, V1:V2, sep = "  ")%>%
+  as_data_frame
+
+samesample_1<- as_data_frame(sample(same.rw$pairs,7),replace = FALSE)%>%
+  rename(pairs = value)
+
+same.137<- rbind(same.rw,same.rw,same.rw, same.rw, same.rw, samesample_1)%>%
+  rename(stimuli = pairs)%>%
+  mutate(stimuli = paste("    ", stimuli, "    "))
+
+# Lists stim only
+
+LMGM_1<- bind_rows(same.137,MGM_1)%>%
+  sample_frac()%>%
+  add_row(stimuli = "   DESCANSO   ", .before = 137)
+
+LMGM_2<- bind_rows(same.137,MGM_2)%>%
+  sample_frac()%>%
+  add_row(stimuli = "   DESCANSO   ", .before = 137)
+
+
+# Practice
+
+Practice1<-as_data_frame(LMGM_2$stimuli[1:2])%>%
+  rename(stimuli = value)
+
+Practice2<-as_data_frame((LMGM_1$stimuli[1:2]))%>%
+  rename(stimuli = value)
+
+# Final lists
+
+L1_MGM <- Start%>%
+  bind_rows(Practice1,LMGM_1)%>%
+  as_data_frame()
+
+L2_MGM <- Start%>%
+  bind_rows(Practice1,LMGM_2)%>%
+  as_data_frame()
+
+write_delim(L1_MGM,"L1_MGM.txt", col_names = F, delim = "")
+write_delim(L2_MGM,"L2_MGM.txt", col_names = F, delim = "")
+```
+
+
+#Check
+
+```{r}
+MGM<- MGM%>%
+  rename(stimuli = pairs)
+
+Check<- bind_rows(MGM,MGM_1,MGM_2)%>%
+  distinct(stimuli)# x676
+
+unique(Check$stimuli)
+```
+
+

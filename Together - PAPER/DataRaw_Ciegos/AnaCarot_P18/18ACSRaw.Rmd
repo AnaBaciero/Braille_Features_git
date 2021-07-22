@@ -1,0 +1,64 @@
+---
+title: "18ACSRaw"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+# Raw data set
+Letter "m" = "same", letter "n" = "different".
+
+For P18: Two first datasets = 268 stimuli rows with S (start), one break and 6 practica. L3&L4 = 421 & 423 stimuli rows (respectively) with S, two breaks, and 2 practice
+
+```{r}
+#Raw with no practice, no S, and no break
+
+RawDataSet1 <- list.files(pattern = "xP18_") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "xP18_"), each=268))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(7:266)%>%
+  ungroup()
+
+RawDataSet2 <- read_csv("yP18_ACS_3") %>%
+  mutate(Subject= rep(list.files(pattern = "yP18_ACS_3"), 421))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+   slice(3:418)
+
+RawDataSet3 <- read_csv("yP18_ACS_4") %>%
+  mutate(Subject= rep(list.files(pattern = "yP18_ACS_3"), 423))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+   slice(3:420)
+
+P18ACSRaw<-RawDataSet1%>%
+  bind_rows(RawDataSet2,RawDataSet3)
+
+save(P18ACSRaw, file = "P18ACRaw.RData")
+  
+```
+  
+  

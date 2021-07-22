@@ -1,0 +1,30 @@
+"0","RawDataSet2 <- list.files(pattern = ""yP29_"") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = ""yP29_""), each=329))%>%
+  separate(`IT1 IT2 KEY RT`,c(""IT1"",""a"", ""IT2"",""b"",""c"",""d"",""e"",""f"",""g"",""KEY"", ""RT""), sep = "" "")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != ""S"",
+         IT1 !=""DESCANSO"")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, ""m"", ""n""),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(4:327)%>%
+  ungroup()
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","Expected 11 pieces. Missing pieces filled with `NA` in 4 rows [1, 166, 330, 495]."

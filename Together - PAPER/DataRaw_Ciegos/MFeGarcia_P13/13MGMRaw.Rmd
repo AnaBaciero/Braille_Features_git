@@ -1,0 +1,57 @@
+---
+title: "13MGMRaw"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+# Raw data set
+Letter "m" = "same", letter "n" = "different".
+
+For P2: Four first datasets = 268 stimuli rows with S (start), one break and 6 practica. L3&L4 = 274 stimuli rows (respectively) with S, 1 break, and 2 practice
+
+```{r}
+#Raw with no practice, no S, and no break
+
+RawDataSet1 <- list.files(pattern = "xP13_") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "xP13_"), each=268))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(7:266)%>%
+  ungroup()
+
+RawDataSet2 <- list.files(pattern = "yP13_") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "yP13_"), each=278))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(7:276)%>%
+  ungroup()
+
+P13MGMRaw<-RawDataSet1%>%
+  bind_rows(RawDataSet2)
+
+save(P13MGMRaw, file = "P13MGMRaw.RData")
+  
+```
+  
+  

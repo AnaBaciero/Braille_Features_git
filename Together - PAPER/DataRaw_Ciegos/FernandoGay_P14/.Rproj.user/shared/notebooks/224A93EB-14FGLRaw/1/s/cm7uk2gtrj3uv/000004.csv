@@ -1,0 +1,76 @@
+"0","
+RawDataSet1 <- list.files(pattern = ""xP14_"") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = ""xP14_""), each=268))%>%
+  separate(`IT1 IT2 KEY RT`,c(""IT1"",""a"", ""IT2"",""b"",""c"",""d"",""e"",""f"",""g"",""KEY"", ""RT""), sep = "" "")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != ""S"",
+         IT1 !=""DESCANSO"")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, ""m"", ""n""),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(7:266)%>%
+  ungroup()
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","Expected 11 pieces. Missing pieces filled with `NA` in 8 rows [1, 137, 269, 405, 537, 673, 805, 941]."
+"0","RawDataSet2 <- list.files(pattern = ""yP14_"") %>%"
+"0","  lapply(read_csv) %>% "
+"0","  bind_rows%>%"
+"0","  mutate(Subject= rep(list.files(pattern = ""yP14_""), each=250))%>%"
+"0","  separate(`IT1 IT2 KEY RT`,c(""IT1"",""a"", ""IT2"",""b"",""c"",""d"",""e"",""f"",""g"",""KEY"", ""RT""), sep = "" "")%>%"
+"0","  select(Subject,IT1,IT2,KEY,RT)%>%"
+"0","  filter(IT1 != ""S"","
+"0","         IT1 !=""DESCANSO"")%>%"
+"0","  mutate(Rubric = if_else(IT1 ==IT2, ""m"", ""n""),"
+"0","         Accuracy = if_else(KEY == Rubric, 1, 0),"
+"0","         RT = as.numeric(RT))%>%"
+"0","  group_by(Subject)%>%"
+"0","  slice(3:248)%>%"
+"0","  ungroup()"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","Expected 11 pieces. Missing pieces filled with `NA` in 4 rows [1, 140, 251, 390]."
+"0","P14FGLRaw<-RawDataSet1%>%"
+"0","  bind_rows(RawDataSet2)"

@@ -1,0 +1,83 @@
+---
+title: "25SGRaw"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+# Raw data set
+Letter "m" = "same", letter "n" = "different".
+
+The 676 letter combinations were divided into 4 lists (162 different (L2&L3) + 163 different (L1&L4)) with 1 break, S & 3 practice
+
+```{r}
+#Raw with no practice, no S, and no break
+
+#Remove files from 152 to 166 (there were problems with movement) in P23_EM_1
+
+
+P25_SG_1<- list.files( pattern = "P25_SG_1") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "P25_SG_1"), each=329))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  slice(4:327) #No practice
+
+
+P25_SG_2<- list.files( pattern = "P25_SG_2") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "P25_SG_2"), each=331))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  slice(4:329) #No practice
+
+SG1y2<- bind_rows(P25_SG_1,P25_SG_2)
+
+
+P25_SG_3<- read_csv("P25_SG_3") %>%
+  mutate(Subject= rep(list.files(pattern = "P25_SG_3"), each=333))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  slice(4:331) #No practice
+
+P25_SG_4<- read_csv("P25_SG_4") %>%
+  mutate(Subject= rep(list.files(pattern = "P25_SG_4"), each=335))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  slice(4:333) #No practice
+
+
+P25SGRaw<-SG1y2%>%
+  bind_rows(P25_SG_3,P25_SG_4)
+
+save(P25SGRaw, file = "P25SGRaw.RData")
+  
+```
+  
+  

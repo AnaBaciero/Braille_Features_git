@@ -1,0 +1,32 @@
+{
+    "id": "6B24F3B3",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1605696357142.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "expression": "RawDataSet3",
+        "caption": "RawDataSet3",
+        "totalObservations": 246,
+        "displayedObservations": 246,
+        "variables": 7,
+        "cacheKey": "737DA472",
+        "object": "RawDataSet3",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=RawDataSet3&cache_key=737DA472&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2466321629402459502,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1605696357142,
+    "read_only": false,
+    "read_only_alternatives": []
+}

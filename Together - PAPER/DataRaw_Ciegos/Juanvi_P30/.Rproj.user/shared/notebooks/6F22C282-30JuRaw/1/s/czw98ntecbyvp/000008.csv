@@ -1,0 +1,53 @@
+"0","RawDataSet1 <- list.files(pattern = ""xP30_"") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = ""xP30_""), each=331))%>%
+  separate(`IT1 IT2 KEY RT`,c(""IT1"",""a"", ""IT2"",""b"",""c"",""d"",""e"",""f"",""g"",""KEY"", ""RT""), sep = "" "")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != ""S"",
+         IT1 !=""DESCANSO"")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, ""m"", ""n""),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(4:329)%>%
+  ungroup()
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","1 parsing failure.
+row col  expected    actual        file
+167  -- 1 columns 2 columns 'xP30_Ju_1'
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","1 parsing failure.
+row col  expected    actual            file
+167  -- 1 columns 2 columns 'xP30_Ju_3(L4)'
+"
+"2","
+[36m--[39m [1m[1mColumn specification[1m[22m [36m--------------------------------------------------------[39m
+cols(
+  `IT1 IT2 KEY RT` = [31mcol_character()[39m
+)
+
+"
+"2","Expected 11 pieces. Additional pieces discarded in 1 rows [1089]."
+"2","Expected 11 pieces. Missing pieces filled with `NA` in 8 rows [1, 167, 332, 498, 663, 829, 994, 1160]."

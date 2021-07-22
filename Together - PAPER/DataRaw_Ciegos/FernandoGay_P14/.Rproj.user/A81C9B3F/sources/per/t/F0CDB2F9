@@ -1,0 +1,32 @@
+{
+    "id": "F0CDB2F9",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1605695528699.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "expression": "RawDataSet2",
+        "caption": "RawDataSet2",
+        "totalObservations": "492",
+        "displayedObservations": "492",
+        "variables": "7",
+        "cacheKey": "E8C0A0B7",
+        "object": "RawDataSet2",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=RawDataSet2&cache_key=E8C0A0B7&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2318273488300897395,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1605695528699,
+    "read_only": false,
+    "read_only_alternatives": []
+}

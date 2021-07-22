@@ -1,0 +1,77 @@
+---
+title: "28BeRaw"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+```
+
+# Raw data set
+Letter "m" = "same", letter "n" = "different".
+
+L3 & L4 334 stimuli plus 1 break, S & 3 practice
+
+```{r}
+#Raw with no practice, no S, and no break
+
+#Remove files from 152 to 166 (there were problems with movement) in P23_EM_1
+
+P23_EM_1<- list.files( pattern = "P23_EM_1") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "P23_EM_1"), each=331))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  slice(4:329) #No practice
+
+P23_EM_1<-P23_EM_1[-(147:161),]
+
+P23_EM_2<- list.files( pattern = "P23_EM_2") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "P23_EM_2"), each=329))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  slice(4:327) #No practice
+
+EM1y2<- bind_rows(P23_EM_1,P23_EM_2)
+
+
+
+RawDataSet2 <- list.files(pattern = "yP23_") %>%
+  lapply(read_csv) %>% 
+  bind_rows%>%
+  mutate(Subject= rep(list.files(pattern = "yP23_"), each=339))%>%
+  separate(`IT1 IT2 KEY RT`,c("IT1","a", "IT2","b","c","d","e","f","g","KEY", "RT"), sep = " ")%>%
+  select(Subject,IT1,IT2,KEY,RT)%>%
+  filter(IT1 != "S",
+         IT1 !="DESCANSO")%>%
+  mutate(Rubric = if_else(IT1 ==IT2, "m", "n"),
+         Accuracy = if_else(KEY == Rubric, 1, 0),
+         RT = as.numeric(RT))%>%
+  group_by(Subject)%>%
+  slice(4:337)%>%
+  ungroup()
+
+
+P23EMRaw<-EM1y2%>%
+  bind_rows(RawDataSet2)
+
+save(P23EMRaw, file = "P23EMRaw.RData")
+  
+```
+  
+  
