@@ -622,7 +622,6 @@ kable(round(diss.rt.matrix.bl,3))
 ```
 
 ```{r Hierarchical clustering bl, message=FALSE, warning=FALSE}
-
 # ACCURACY
 
 ## Euclidian method (because of previous articles):
