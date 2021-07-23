@@ -8,18 +8,19 @@ author:
     corresponding : yes    # Define only one corresponding author
     address       : "Santa Cruz de Marcenado, 27. 28015, Madrid,Spain"
     email         : "abaciero@nebrija.es"
-    role:         # Contributorship roles (e.g., CRediT, https://casrai.org/credit/)
-      - e.g.,
+    role:         
       - Conceptualization
       - Design
       - Data preparation and analyses
       - Writing - Original Draft Preparation
-      - Writing - Review & Editing)
+      - Writing - Review & Editing
       
   - name          : "Pablo Gomez"
     affiliation   : "3"
     role: 
-      - XXXX
+      - Conceptualization
+      - Data preparation and analyses
+      - Writing - Original Draft Preparation
       
   - name          : "Jon Andoni Duñabeitia"
     affiliation   : "1,4"
@@ -29,8 +30,10 @@ author:
   - name          : "Manuel Perea"
     affiliation   : "1,5"
     role: 
-      - XXXX
-
+      - Conceptualization
+      - Data preparation and analyses
+      - Writing - Original Draft Preparation
+ 
       
 affiliation:
   - id            : "1"
@@ -88,6 +91,15 @@ output            : papaja::apa6_pdf
 header-includes:
 - \usepackage{braille}
 - \usepackage{color}
+- \usepackage{xcolor}
+- \usepackage{braille}
+- \definecolor{darkgreen}{RGB}{0,127,0}
+- \definecolor{darkyellow}{RGB}{90,90,0}
+- \newcommand{\remark}[3]{{\colorbox{#2}{\sffamily\scriptsize\bfseries\textcolor{white}{#1}}}{\sffamily\small\itshape\textcolor{#2}{#3}}}
+- \newcommand{\abl}[1]{\remark{abl}{blue}{#1}}
+- \newcommand{\pga}[1]{\remark{pga}{darkyellow}{#1}}
+- \newcommand{\mpl}[1]{\remark{mpl}{red}{#1}}
+- \newcommand{\jadl}[1]{\remark{jad}{darkgreen}{#1}}
 ---
 
 ```{r setup, include = FALSE}
@@ -102,7 +114,7 @@ library(dplyr)
 ```{r analysis-preferences}
 # Seed for random number generation
 set.seed(142)
-knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed, warning = FALSE)
 
 
 BrailleDotsTable <- miceadds::load.Rdata2( filename="BrailleDotsTable.RData")
@@ -111,9 +123,30 @@ BrailleDotsTable <- miceadds::load.Rdata2( filename="BrailleDotsTable.RData")
 
 # Introduction
 
+\pga{Pablo's comments look like this}
+
+\abl{Ana's comments look like this}
+
+\mpl{Manolo's comments look like this}
+
+\jadl{Jon Andoni's comments look like this}
+
 TEXT INTRO
 
-26 basic letters of the Latin alphabet
+
+\pga{
+I propose the following organization for the paper:
+1. Why is it important to know the features of characters in alphabetic systems"
+2. Explain what Braille is
+3. Say briefly what was done expirically and statistically
+
+We dont need the numberging below, but moslty to keep track
+}
+
+
+### 1. Why 
+
+When seeing graphemes of an alphabet or a script that we are unfamiliar with, a natural reaction is to be in awe at how readers of that script can distingush among the letters that to us seem "all alike". 
 
 
 # Experiment 1: DePaul
