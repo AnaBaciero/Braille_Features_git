@@ -25,7 +25,7 @@ author:
   - name          : "Jon Andoni Duñabeitia"
     affiliation   : "1,4"
     role: 
-      - XXXX
+      - Writing - Review & Editing
       
   - name          : "Manuel Perea"
     affiliation   : "1,5"
@@ -140,14 +140,22 @@ I propose the following organization for the paper:
 2. Explain what Braille is
 3. Say briefly what was done expirically and statistically
 
-We dont need the numberging below, but moslty to keep track
+We dont need the numberging below, It is moslty to keep track
 }
 
+\pga{Why}
 
-### 1. Why 
+When seeing graphemes of an alphabet or a script that we are unfamiliar with, a natural reaction is to be in awe at how readers of that script can distinguish among the letters that to us seem "all alike". Similarly, for non-braille readers, touching a sign in Braille might fell like simply a textured surface. Readers, on the other hand, automatically extract the relevant critical features in letters, and are for the most part unbothered by the accidental features of letters.   There is, indeed, a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations. 
 
-When seeing graphemes of an alphabet or a script that we are unfamiliar with, a natural reaction is to be in awe at how readers of that script can distingush among the letters that to us seem "all alike". 
 
+\pga{cite Pandemonium; Grainger et al 2008, etc etc.}
+
+
+\pga{Explain what Braille is}
+
+The present paper aims to understand what constitutes a feature in the braille system, and hence a description of it is in order.... \pga{blah, blah}
+
+\pga{Brief intro on what we are doing}
 
 # Experiment 1: DePaul
 
