@@ -3,7 +3,7 @@ title             : "What determines the similarity of braille letters? A matrix
 shorttitle        : "Braille letter similarity"
 
 author: 
-  - name          : "Ana Baciero"
+  - name          : "Carmen Baciero"
     affiliation   : "1,2"
     corresponding : yes    # Define only one corresponding author
     address       : "Santa Cruz de Marcenado, 27. 28015, Madrid,Spain"
