@@ -145,7 +145,9 @@ We dont need the numberging below, It is moslty to keep track
 
 \pga{Why}
 
-When seeing graphemes of an alphabet or a script that we are unfamiliar with, a natural reaction is to be in awe at how readers of that script can distinguish among the letters that to us seem "all alike". Similarly, for non-braille readers, touching a sign in Braille might fell like simply a textured surface. Readers, on the other hand, automatically extract the relevant critical features in letters, and are for the most part unbothered by the accidental features of letters.   There is, indeed, a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations. 
+
+
+For most sighted people, touching a sign in braille feels like little more than a textured surface.  Similarly, when we see graphemes of an alphabet or a script that we are unfamiliar with, it is hard to distinguish among different letters that look "alike". Readers of braille (or any other script), on the other hand, automatically extract the relevant critical features in letters, and are for the most part unbothered by the accidental features of letters.   There is, indeed, a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations. This article aims to understand what are the features of braille letters, and if such features change depending on braille literacy or if they emerge even in naive participants.
 
 
 \pga{cite Pandemonium; Grainger et al 2008, etc etc.}
@@ -153,7 +155,8 @@ When seeing graphemes of an alphabet or a script that we are unfamiliar with, a 
 
 \pga{Explain what Braille is}
 
-The present paper aims to understand what constitutes a feature in the braille system, and hence a description of it is in order.... \pga{blah, blah}
+Braille is unique among writing systems for many reasons and one of them is that it is a modern invention (1824); unlike most other visual writing systems that have evolved through factors such as ergnomic constraints (cite something), braille is   \pga{blah, blah}.
+
 
 \pga{Brief intro on what we are doing}
 
