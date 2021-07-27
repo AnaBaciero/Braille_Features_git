@@ -3,7 +3,7 @@ title             : "What determines the similarity of braille letters? A matrix
 shorttitle        : "Braille letter similarity"
 
 author: 
-  - name          : "Carmen Baciero"
+  - name          : "Ana Baciero"
     affiliation   : "1,2"
     corresponding : yes    # Define only one corresponding author
     address       : "Santa Cruz de Marcenado, 27. 28015, Madrid,Spain"
@@ -102,6 +102,7 @@ header-includes:
 - \newcommand{\jadl}[1]{\remark{jad}{darkgreen}{#1}}
 ---
 
+
 ```{r setup, include = FALSE}
 library("papaja")
 library(tidyverse)
@@ -113,6 +114,7 @@ library(dplyr)
 
 ```{r analysis-preferences}
 # Seed for random number generation
+
 set.seed(142)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed, warning = FALSE)
 
@@ -131,8 +133,6 @@ BrailleDotsTable <- miceadds::load.Rdata2( filename="BrailleDotsTable.RData")
 
 \jadl{Jon Andoni's comments look like this}
 
-TEXT INTRO
-
 
 \pga{
 I propose the following organization for the paper:
@@ -145,27 +145,47 @@ We dont need the numberging below, It is moslty to keep track
 
 \pga{Why}
 
+For most sighted people, touching the small raised dot patterns that configure a braille character feels like little more than a textured surface.  Similarly, when we see graphemes of an alphabet or that we are unfamiliar with, it is hard to distinguish among the different symbols that, for the untrained eye, look "alike". However, expert readers (of braille, or any other alphabetic writing system) automatically extract the critical features in letters, and are for the most part unbothered by their accidental features. Indeed, there is a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations [see @carreiras2012priming; @dehaene2005neural; @grainger2008letter; @pelli2006feature]. On this general basis, many studies have been devoted to the examination of the similarity/confusability of letters in various alphabets [e.g., Roman: @simpson2013letter; see also @Mueller_2012 for a review; Arabic: @Boudelaa_2020; @Wiley_2016], which has allowed researchers to carry out further investigations in reading and word recognition while controlling for letter similarity (\abl{CITE: e.g., XXXX Marcet...}), and move towards a comprehensive understanding of letter identification and reading. \abl{SAY SOMETHING ABOUT EXPERTISE EFFECTS-WILEY}. 
+
+Of course, this consensus on the idea that letter perception follows a hierarchical mechanism that starts with the extraction of basic letter features is based on visual reading findings. Braille letter perception has been far less studied and, therefore, its theoretical accounts have been discussed and examined in a smaller extent. Here we aim to understand what the features of braille letters are, and whether such features change depending on braille literacy. 
+
+\abl{Explain what Braille is & what its known regarding letter perception}
+
+Braille is unique among writing systems for many reasons. One of them is that it is a modern invention (created less than 200 years ago; @braille1829procedure), and another one that it was designed to be interpreted by touch. That is, it was devised taking into account the specific characteristics of the sensory modality at play, reflecting a compromise between amount of information and skin's acuity. Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language, such as letters (e.g., a = \braille{a}), or punctuation marks (e.g., ? = \braille{?}). Hence, an important characteristic of the braille writing system is its simplicity (see Figure \ref{fig:BrailleAlphabet}). Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). 
 
 
-For most sighted people, touching a sign in braille feels like little more than a textured surface.  Similarly, when we see graphemes of an alphabet or a script that we are unfamiliar with, it is hard to distinguish among different letters that look "alike". Readers of braille (or any other script), on the other hand, automatically extract the relevant critical features in letters, and are for the most part unbothered by the accidental features of letters.   There is, indeed, a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations. This article aims to understand what are the features of braille letters, and if such features change depending on braille literacy or if they emerge even in naive participants.
+One of the first hypothesis on braille letter perception suggested that braille letters were perceived holistically, by their "global shape" (e.g., \abl{CITE: Nolan & Kederis, 1969}). Nonetheless, in a series of experiments, Millar \abl{1977 a, b, 1985, see also 2003...} showed that was not the case, since XXXX EXPLAIN RESULTS. Indeed, Millar suggested that braille lacks prominent features. Instead, the author suggested that letter perception in braille initially depends on dot density ("texture"), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other-spatial organization)
 
-
-\pga{cite Pandemonium; Grainger et al 2008, etc etc.}
-
-
-\pga{Explain what Braille is}
-
-Braille is unique among writing systems for many reasons and one of them is that it is a modern invention (1824); unlike most other visual writing systems that have evolved through factors such as ergnomic constraints (cite something), braille is   \pga{blah, blah}.
-
+... \abl{link to what we're doing -- even though "braille letters are bound to be similar to each other"...are all of them equally similar?}
 
 \pga{Brief intro on what we are doing}
+
+- confussion matrices to examine what determines letter similarity in braille -> as research in visual modality
+
+- Expertise effects in letter perception
+
+- Dots/position weights -> is any position more important? Given that we know how it was created...(dot 3, 6...)
+
+
+\abl{importance}
+
+Theoretical and practical reasons ... 
+
+
+```{r BrailleAlphabet}
+
+knitr::include_graphics("FigureBraille_Eng_2.jpg")
+```
+
+
 
 # Experiment 1: DePaul
 
 
 ## Method
 
-Only passive
+Only passive 
+
 
 
 ### Participants
