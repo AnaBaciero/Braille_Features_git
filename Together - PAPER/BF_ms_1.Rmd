@@ -192,34 +192,36 @@ knitr::include_graphics("FigureBraille_Eng_2.jpg")
 
 
 
-## Apparatus
-
-	Two braille displays were used to present the braille letters (i.e., a Focus 40 blue, and a Smart Beetle). The braille display was placed in the pull-out keyboard tray of the desktop, to avoid participants seeing it, while the keyboard was placed on top of the desktop. Each braille display had 3D stickers separated 5 cm, indicating the area where the braille letters would appear. For the group performing the passive task only (i.e., Group 2), a display was placed on the moving platform described in the previous section. 
-
-
 ## Method
-
-Only passive 
-
-
 
 ### Participants
 
-86 undergraduate students at DePaul University who did not know how to read braille were recruited through the subject pool system. All of them gave informed consent before their participation and earned one course-credit for taking part in the study. With this sample size, we wanted to ensure each pair of different letters was observed a minimum of 15 times (considering pairs containing the same two different letters in the opposite order as being different pairs [e.g., \braille{l} \braille{f} different from \braille{f} \braille{l}], and taking into account that some trials may be lost in data cleaning). 
+86 undergraduate students at DePaul University, who did not know how to read braille, were recruited through the subject pool system. All of them gave informed consent before their participation and earned one course-credit for taking part in the study. With this sample size, we wanted to ensure each pair of different letters was observed a minimum of 15 times (considering pairs containing the same two different letters in the opposite order as being different pairs [e.g., \braille{l} \braille{f} different from \braille{f} \braille{l}], and taking into account that some trials may be lost in data cleaning). 
+
+### Apparatus
+
+We devised a system to control the presentation timing of braille stimuli while maintaining the needed movement of the fingertips across the braille letters from left to right. This system consists in a refreshable braille display placed on a motorized platform that moves the display horizontally at a set speed and distance. Hence, with this system we slid the braille letters on the braille display against participants fingers, instead of having participants moving their fingers from left to right to perceive the letters (\abl{see Appendix X for a a more detailed description and visualization of the apparatus}). In addition, we used 3D stickers to indicate the area where the braille letters would appear, serving as reference points (start & end). 
+
+\abl{maybe add something like: even though this is not the most ecological way to read, participants' performance while using this "passive-haptic" method was similar to their performance using the active exploration of the patterns (MA Thesis)}. 
+
 
 ### Materials
 
-The study used all possible 2-letter combinations: 676 pairs. Out of those pairs, 26 were the same two letters (e.g., \braille{f} \braille{f}), and 650 two different letters (e.g., \braille{f} \braille{t}). Thus, five different lists of pairs were created in which 130 were same pairs (i.e., formed by the same two letters), and 130 were different pairs (i.e., formed by two different letters). Each participant perceived 266 trials, where 6 were practice and 260 were target trials; the order of presentation was randomized for each participant. 
+The study used all possible 2-letter combinations (n = 676) pairs. Out of those pairs, 26 were formed by the same two letters (e.g., \braille{f} \braille{f}), and 650 formed by two different letters (e.g., \braille{f} \braille{t}). In order to have the same amount of trials per condition (i,e., *same* and *different*), we created five different lists of pairs, each of them with 130 *same pairs*, and 130 *different pairs*. Hence, each participant perceived 266 trials, 6 practice plus 260 target trials. The order of presentation of the target trials was randomized for each participant. 
 
 **3 PARTICIPANTS (87-89) ONLY 210!**
 
 ### Procedure
 
-The experiment took place individually in a quiet room. Participants used the moving version of TouchScope. Hence, participants did not move their fingers to perceive the stimuli. They were instructed to place their index fingertip on the start position to let the braille display slide against it. The braille display moved for 5 cm at 38.9 mm/s (35.9 mm/rev x 65 rpm / 60). This speed was chosen considering previous studies on passive touch (see Vega-Bermudez et al., 1991), as well as our own experience testing it. After moving said distance, the display stopped until participants responded and reset its position during the one-second ITI. This experiment also took around 30 minutes to complete.
+The experiment took place individually in a quiet room. We placed the refreshable braille display + moving platform system in the pull-out keyboard tray of the desktop, to avoid participants seeing the braille characters, and the keyboard used to respond on the desktop. Participants were instructed to place their index fingertip on the start position (after the first 3D sticker), to let the braille display slide against it, and to classify the two letters perceived as being *the same* two letters or as being two *different* letters--the letters "m" or "n" on the keyboard, respectively, with the non-dominant hand.  
+
+The braille display moved for 5 cm at 38.9 mm/s (35.9 mm/rev x 65 rpm / 60). This speed was chosen considering previous studies on passive touch (see Vega-Bermudez et al., 1991), as well as our own experience testing it. After moving said distance, the display stopped until participants responded and reset its position during the one-second ITI. The experimental session took around 30 minutes to complete.
 
 ### Data analysis
 
+Participants whose accuracy was below 51%, and trials in which response times (RTs) were either fatser than 600ms (time to)
 
+Participants who performed at chance level or below, and trials in which responses were either faster than 200 ms or slower than 15000 ms were excluded from the analysis. Table 1 shows the mean accuracy per group and condition.
 
 ## Results
 
