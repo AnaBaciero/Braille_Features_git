@@ -152,14 +152,18 @@ Of course, this consensus on the idea that letter perception follows a hierarchi
 \pga{Explain what Braille is} 
 \abl{\& what its known regarding letter perception}
 
-Braille is unique among writing systems for many reasons. One of them is that it is a modern invention (created less than 200 years ago; @braille1829procedure), and another one that it was designed to be interpreted by touch. That is, it was devised taking into account the specific characteristics of the sensory modality at play, reflecting a compromise between amount of information and skin's acuity. Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language, such as letters (e.g., a = \braille{a}), or punctuation marks (e.g., ? = \braille{?}). Hence, an important characteristic of the braille writing system is its simplicity (see Figure \ref{fig:BrailleAlphabet}). Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). 
+Braille is unique among writing systems for many reasons. One of them is that it is a modern invention (created less than 200 years ago; @braille1829procedure), and another one that it was designed to be interpreted by touch. That is, it was devised taking into account the specific characteristics of the sensory modality at play, reflecting a compromise between amount of information and skin's acuity. Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity (see Figure \ref{fig:BrailleAlphabet}). Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). 
 
 
 One of the first hypothesis on braille letter perception suggested that braille letters were perceived holistically, by their "global shape" (e.g., \abl{CITE: Nolan \& Kederis, 1969}). Nonetheless, in a series of experiments, \abl{CITE: Millar 1977 a, b, 1985, see also 2003...} showed that was not the case, since ...\abl{explain results: high accuracy in same/different but not able to recall/drawing...}. Indeed, Millar suggested that braille lacks prominent features. Instead, the author suggested that letter perception in braille initially depends on dot density ("texture"), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other -> spatial organization)
 
 ... \abl{link to what we're doing -- even though "braille letters are bound to be similar to each other"...are all of them equally similar?}
 
+It is unclear from the literature the extent to which braille letters are similar to each other. Here...
+
 \pga{Brief intro on what we are doing}
+
+- choice of task (common in visual modality) -> speeded same-different judgments for letter pairs (this task allows for normal perception conditions, while limiting the influence of task irrelevant knowledge, such as vocabulary knowledge) -> speeded = apparatus
 
 - confussion matrices to examine what determines letter similarity in braille -> as research in visual modality
 
@@ -172,6 +176,10 @@ One of the first hypothesis on braille letter perception suggested that braille 
 
 Theoretical and practical reasons ... 
 
+\abl{limitations on interpretation}
+
+The comparison between groups of course is not perfect: braille readers have greater tactile sensitivity in addition to knowledge about braille letters, and sighted individuals might use strategies, such as to mentally visualize the pattern, that are influenced by their vision experience... nonetheless, it is still possible to gain knowledge on tactile letter processing in general as well as the way literacy affects it, which, in turn, will assist on the improvement of teaching (practical) and models of word recognition and reading (theoretical)...
+
 
 ```{r BrailleAlphabet}
 
@@ -180,7 +188,13 @@ knitr::include_graphics("FigureBraille_Eng_2.jpg")
 
 
 
-# Experiment 1: DePaul
+# Experiment 1: Similarity judgements by naïve braille readers
+
+
+
+## Apparatus
+
+	Two braille displays were used to present the braille letters (i.e., a Focus 40 blue, and a Smart Beetle). The braille display was placed in the pull-out keyboard tray of the desktop, to avoid participants seeing it, while the keyboard was placed on top of the desktop. Each braille display had 3D stickers separated 5 cm, indicating the area where the braille letters would appear. For the group performing the passive task only (i.e., Group 2), a display was placed on the moving platform described in the previous section. 
 
 
 ## Method
