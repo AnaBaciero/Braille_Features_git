@@ -48,30 +48,17 @@ affiliation:
     institution   : "Universitat de València"
 
 authornote: |
-  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
 
   Enter author note here.
 
 abstract: |
 
-  One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
-  
-  Two to three sentences of **more detailed background**, comprehensible  to scientists in related disciplines.
-  
-  One sentence clearly stating the **general problem** being addressed by  this particular study.
-  
-  One sentence summarizing the main result (with the words "**here we show**" or their equivalent).
-  
-  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
-  
-  One or two sentences to put the results into a more **general context**.
-  
-  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
+  Letters are the essential components of words. In alphabetic writing systems, letter identification is generally understood as a hierarchical process: from the detection of letter features to the activation of the letter’s abstract representation. Recent research has shown that this process is modulated by visual-letter similarity. To operationalize how visual similarity affects the interplay between printed input and abstract representations, researchers have created confusability matrices for letters in various alphabets. Here, we expand this research by examininig, in a parallel manner, the similarity of braille letters, as well as the features that make braille letters similar/dissimilar among themselves, for both naïve (sighted individuals) and expert braille readers (blind individuals). To do so, we conducted a same-different judgement task and created similarity matrices for accuracy and response times, and further analyzed the data via hierarchical clustering and linear mixed-effects models. This article presents a braille letter confusability matrix, and our findings evidencing the specific features, both perceptual and knowledge-based, that affect braille letter perception. These findings are important not only to design future studies on braille reading, but also to develop novel strategies for teaching the braille alphabet to both children and adults.
   
   
   <!-- https://tinyurl.com/ybremelq -->
   
-keywords          : "keywords"
+keywords          : "Braille, Letter Identity Coding, Letter Confusability Matrix"
 wordcount         : "X"
 
 bibliography      : ["r-references.bib"]
@@ -145,22 +132,23 @@ We dont need the numberging below, It is moslty to keep track
 
 \pga{Why}
 
-For most sighted people, the small raised dot patterns that configure braille characters feels like little more than an undifferentiated textured surface.  Similarly, when we see graphemes of an alphabet or that we are unfamiliar with, it is hard to distinguish among the different symbols that, for the untrained eye, look "alike". However, expert readers (of braille, or any other writing system) automatically extract the critical features in letters, and are, for the most part, unbothered by their accidental features. Indeed, there is a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations [see @carreiras2012priming; @dehaene2005neural; @grainger2008letter; @pelli2006feature]. On this general basis, many studies have been devoted to the examination of the similarity/confusability of letters in various alphabets [e.g., Roman: @simpson2013letter; see also @Mueller_2012 for a review; Arabic: @Boudelaa_2020; @Wiley_2016], which has allowed researchers to carry out further investigations in reading and word recognition while controlling for letter similarity (\abl{CITE: e.g., XXXX Marcet...}), and move towards a comprehensive understanding of letter identification and reading. \abl{Say something about expertise effects -> WILEY}. 
+For most sighted people, the small raised dot patterns that configure braille characters feel like little more than an undifferentiated textured surface.  Similarly, when we see graphemes of an alphabet or that we are unfamiliar with, it is hard to distinguish among the different symbols that, for the untrained eye, look "alike". However, expert readers (of braille, or any other writing system) automatically extract the critical features in letters, mostly unbothered by their accidental features. Indeed, there is a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations [see @carreiras2012priming; @dehaene2005neural; @grainger2008letter; @pelli2006feature]. On this general basis, many studies have been devoted to the examination of the similarity/confusability of letters in various alphabets [e.g., Roman: @simpson2013letter; see also @Mueller_2012 for a review; Arabic: @Boudelaa_2020; @Wiley_2016], which has allowed researchers to carry out further investigations in reading and word recognition while controlling for letter similarity (\abl{CITE: e.g., XXXX Marcet...}), and examine ways to   \abl{Say something about expertise effects -> WILEY. and that together --> move towards a comprehensive understanding of letter identification and reading}
 
-In  visualreading research, a caonsensus has emerged regarding the extraction of features from the retinal image; in other words, we do not simply use the pattern of pixels, but instead use lines, angles, and curves as the building blocks for letter recognition. However, braille letter perception has been far less studied and, therefore, its theoretical accounts have been discussed and examined in a smaller extent. Here we aim to understand what the features of braille letters are, and whether such features change depending on braille literacy. 
+In  visual reading research, a consensus has emerged regarding the extraction of features from the retinal image; in other words, we do not simply use the pattern of pixels, but instead we use lines, angles, and curves as the building blocks for letter recognition. However, braille letter perception has been far less studied and, therefore, its theoretical accounts have been discussed and examined in a smaller extent. Here we aim to understand what the features of braille letters are, and whether such features change depending on braille literacy. 
 
-\pga{Explain what Braille is} 
-\abl{\& what its known regarding letter perception}
+Braille is unique among writing systems for many reasons. Of course, the most obvious one is that it was developed to be used by blind people though the sense of touch. Hence, it was devised taking into account the specific characteristics of the sensory modality at play, reflecting a compromise between amount of information and the skin's acuity. Importantly, the braille system is also significantly different from other contemporary writing systems because it is a modern invention (published in 1829; @braille1829procedure) that has remained essentially unchanged since Louis Braille engineered it. In contrast, visual writing systems currently in used have evolved through cultural contact and ergonomic constraints over thousands of years.
 
-Braille is unique among writing systems for many reasons. Of course, the most obvious one is that it was developed to be used by blind people though the sense of touch. Hence, it was devised taking into account the specific characteristics of the sensory modality at play, reflecting a compromise between amount of information and the skin's acuity. 
+Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity. Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). In addition, braille is highly standardized in the shape and size of the matrix with minor variations in the standards set by different regulatory bodies; hence, there are not *glyphs* in braille. 
 
-Importantly, the braille system is also significatly different from other contemporary writing systems because it is a modern (1824) \pga{en algun sitio he visto 1829, asi que ya no se yo cual es la fecha} invention that has remained essentailly unchanged since Louis Braille engineered it.  In contrast, visual writing systems currently in used have evolved thorugh cultural contact and ergonomic constraints over thousands of years.
+An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet} , the first 10 characters in the alphabet (*a-j*) are written using the top two rows of dots: \braille{a b c d e f g h i j}; the next ten letters (*k-t*) repeat the patterns of the previous ten, adding a dot in the 3rd position:  \braille{k l m n o p q r s t}; the next group of letters (*u-z*) also repeat the pattern but add a dot in the 6th position: \braille{u v x y z}. The letter *w*, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. \abl{"Later developments include letter combinations such as "th" \braille{{th}} and ch \braille{{ch}}" - that's only in English, though. Maybe we should talk a bit about the differences between languages?}.
 
-Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity (see Figure \ref{fig:BrailleAlphabet}). Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). In addition, braille is highly standardized in the shape and size of the matrix with minor variations in the standards set by different regulatory bodies; hence, there are not *glyphs* in braille. 
+\abl{briefly what has been done regarding confusion matrices and letter perception}
 
-An explanation of how Luis Braille deviced the system is in order. The first 10 characters in the alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, but add a dot in the 3rd position  \braille{k l m n o p q r s t}, the next group of letters (u - z)also repeat the pattern but add a dot in the 4th position \braille{u v x y z}. The w, not being part of the French alphabet was later assigned the character \braille{w}. Later developments include letter combiations such as "th" \braille{{th}} and ch \braille{{ch}}.
+\abl{confusion matrices: loomis, craigh}
 
-One of the initial hypotheses on braille letter perception suggested that braille letters were perceived holistically, by their "global shape" (e.g., \abl{CITE: Nolan \& Kederis, 1969}). Nonetheless, in a series of experiments, \abl{CITE: Millar 1977 a, b, 1985, see also 2003...} showed that was not the case, since ...\abl{explain results: high accuracy in same/different but not able to recall/drawing...}. Indeed, Millar suggested that braille lacks prominent features and that letter perception in braille initially depends on dot density ("texture"), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other -> spatial organization)
+\abl{letter perception: millar} 
+
+One of the initial hypotheses on braille letter perception suggested that braille letters were perceived holistically, by their "global shape" (e.g., \abl{CITE: Nolan \& Kederis, 1969}). Nonetheless, in a series of experiments, \abl{CITE: Millar 1977 a, b, 1985, see also 2003...} showed that was not the case, since ...\abl{explain results: high accurafcy in same/different but not able to recall/drawing...}. Indeed, Millar suggested that braille lacks prominent features and that letter perception in braille initially depends on dot density ("texture"), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other -> spatial organization)
 
 ... \abl{link to what we're doing -- even though "braille letters are bound to be similar to each other"...are all of them equally similar?}
 
@@ -226,11 +214,11 @@ The braille display moved for 5 cm at 38.9 mm/s (35.9 mm/rev x 65 rpm / 60). Thi
 
 ### Data analysis
 
-Participants whose accuracy was below 51%, and trials in which response times (RTs) were either fatser than 600ms (time to)
-
-Participants who performed at chance level or below, and trials in which responses were either faster than 200 ms or slower than 15000 ms were excluded from the analysis. Table 1 shows the mean accuracy per group and condition.
+Participants whose accuracy was below 51%, and trials in which response times (RTs) were either faster than 600ms (\abl{smaller than t0}) or slower than 1200,s were excluded from the analysis (\abl{add percentage}).
 
 ## Results
+
+
 
 ```{r data set rawE1, message=FALSE, warning=FALSE}
 library("papaja")
@@ -291,9 +279,6 @@ Sighted_clean <- Sighted %>%
   filter(RT < 12)%>% # removed 179 observations
   mutate(rubricC = ifelse(rubric == "m",0.5,-0.5))
 
-
-
-
 #Checking
 N_obs_different<- Sighted_clean%>%
   filter(rubric=="n")%>%
@@ -303,6 +288,7 @@ N_obs_different<- Sighted_clean%>%
 min(N_obs_different$n) #14 obs min
 
 ```
+
 
 ```{r bayes t test, message=FALSE, warning=FALSE}
 
