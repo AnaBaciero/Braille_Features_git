@@ -51,7 +51,7 @@ authornote: |
 
   Enter author note here.
 
-abstract: | 
+abstract: |
 
   Letters are the essential components of words. In alphabetic writing systems, letter identification is generally understood as a hierarchical process: from the detection of letter features to the activation of the letter’s abstract representation. Recent research has shown that this process is modulated by visual-letter similarity. To operationalize how visual similarity affects the interplay between printed input and abstract representations, researchers have created confusability matrices for letters in various alphabets. Here, we expand this research by examininig, in a parallel manner, the similarity of braille letters, as well as the features that make braille letters similar/dissimilar among themselves, for both naïve (sighted individuals) and expert braille readers (blind individuals). To do so, we conducted a same-different judgement task and created similarity matrices for accuracy and response times, and further analyzed the data via hierarchical clustering and linear mixed-effects models. This article presents a braille letter confusability matrix, and our findings evidencing the specific features, both perceptual and knowledge-based, that affect braille letter perception. These findings are important not only to design future studies on braille reading, but also to develop novel strategies for teaching the braille alphabet to both children and adults.
   
@@ -127,7 +127,7 @@ I propose the following organization for the paper:
 2. Explain what Braille is
 3. Say briefly what was done expirically and statistically
 
-We dont need the numberging below, It is moslty to keep track
+We dont need the numberging below;It is moslty to keep track
 }
 
 \pga{Why}
@@ -140,21 +140,13 @@ Braille is unique among writing systems for many reasons. Of course, the most ob
 
 Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity. Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). In addition, braille is highly standardized in the shape and size of the matrix with minor variations in the standards set by different regulatory bodies; hence, there are not *glyphs* in braille. 
 
-<<<<<<< HEAD
-An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet} , the first 10 characters in the alphabet (*a-j*) are written using the top two rows of dots: \braille{a b c d e f g h i j}; the next ten letters (*k-t*) repeat the patterns of the previous ten, adding a dot in the 3rd position:  \braille{k l m n o p q r s t}; the next group of letters (*u-z*) also repeat the pattern but add a dot in the 6th position: \braille{u v x y z}. The letter *w*, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. \abl{"Later developments include letter combinations such as "th" \braille{{th}} and ch \braille{{ch}}" - that's only in English, though. Maybe we should talk a bit about the differences between languages?}.
-=======
-An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet}, the first 10 characters in the alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, adding a dot in the 3rd position  \braille{k l m n o p q r s t}, the next group of letters (u - z) also repeat the pattern but add a dot in the 6th position \braille {u v x y z}. The w, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. \abl{"Later developments include letter combiations such as "th" \braille{{th}} and ch \braille{{ch}}" - that's only in English, though. Maybe we should talk a bit about the differences between languages?}.
->>>>>>> 8540089678d755e8a681a8cd3e9559aa7d517aa1
+An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet}, the first 10 characters in the alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, adding a dot in the 3rd position  \braille{k l m n o p q r s t}, the next group of letters (u - z) also repeat the pattern but add a dot in the 6th position \braille{u v x y z}. The w, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. \pga{"Later developments have include braille characters that are specific to particular langauges, for example, in English there areletter combiations such as "th" \braille{{th}} and ch \braille{{ch}, and in Spanish there are character for accepted letters like á \braille{á} or ñ \braille{ñ}}" .
 
 \abl{briefly what has been done regarding confusion matrices and letter perception}
 
 \abl{confusion matrices: loomis, craigh}
 
-<<<<<<< HEAD
-\abl{letter perception: millar} 
-=======
 \abl{letter perception: millar}
->>>>>>> 8540089678d755e8a681a8cd3e9559aa7d517aa1
 
 One of the initial hypotheses on braille letter perception suggested that braille letters were perceived holistically, by their "global shape" (e.g., \abl{CITE: Nolan \& Kederis, 1969}). Nonetheless, in a series of experiments, \abl{CITE: Millar 1977 a, b, 1985, see also 2003...} showed that was not the case, since ...\abl{explain results: high accurafcy in same/different but not able to recall/drawing...}. Indeed, Millar suggested that braille lacks prominent features and that letter perception in braille initially depends on dot density ("texture"), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other -> spatial organization)
 
@@ -222,11 +214,11 @@ The braille display moved for 5 cm at 38.9 mm/s (35.9 mm/rev x 65 rpm / 60). Thi
 
 ### Data analysis
 
-Participants whose accuracy was below 51%, and trials in which response times (RTs) were either faster than 600ms (\abl{smaller than t0}) or slower than 1200,s were excluded from the analysis (\abl{add percentage}).
+Participants whose accuracy was below 51%, and trials in which response times (RTs) were either fatser than 600ms (time to)
+
+Participants who performed at chance level or below, and trials in which responses were either faster than 200 ms or slower than 15000 ms were excluded from the analysis. Table 1 shows the mean accuracy per group and condition.
 
 ## Results
-
-
 
 ```{r data set rawE1, message=FALSE, warning=FALSE}
 library("papaja")
@@ -287,6 +279,9 @@ Sighted_clean <- Sighted %>%
   filter(RT < 12)%>% # removed 179 observations
   mutate(rubricC = ifelse(rubric == "m",0.5,-0.5))
 
+
+
+
 #Checking
 N_obs_different<- Sighted_clean%>%
   filter(rubric=="n")%>%
@@ -296,7 +291,6 @@ N_obs_different<- Sighted_clean%>%
 min(N_obs_different$n) #14 obs min
 
 ```
-
 
 ```{r bayes t test, message=FALSE, warning=FALSE}
 
