@@ -127,7 +127,7 @@ I propose the following organization for the paper:
 2. Explain what Braille is
 3. Say briefly what was done expirically and statistically
 
-We dont need the numberging below, It is moslty to keep track
+We dont need the numberging below;It is moslty to keep track
 }
 
 \pga{Why}
@@ -140,7 +140,7 @@ Braille is unique among writing systems for many reasons. Of course, the most ob
 
 Braille is a system of embossed dots whose basic unit is *the cell*, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity. Indeed, as @Millar_2003 said, "Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix" (p. 32). In addition, braille is highly standardized in the shape and size of the matrix with minor variations in the standards set by different regulatory bodies; hence, there are not *glyphs* in braille. 
 
-An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet}, the first 10 characters in the alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, adding a dot in the 3rd position  \braille{k l m n o p q r s t}, the next group of letters (u - z) also repeat the pattern but add a dot in the 6th position \braille {u v x y z}. The w, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. \abl{"Later developments include letter combiations such as "th" \braille{{th}} and ch \braille{{ch}}" - that's only in English, though. Maybe we should talk a bit about the differences between languages?}.
+An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet}, the first 10 characters in the alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, adding a dot in the 3rd position  \braille{k l m n o p q r s t}, the next group of letters (u - z) also repeat the pattern but add a dot in the 6th position \braille{u v x y z}. The w, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. \pga{"Later developments have include braille characters that are specific to particular langauges, for example, in English there areletter combiations such as "th" \braille{{th}} and ch \braille{{ch}, and in Spanish there are character for accepted letters like á \braille{á} or ñ \braille{ñ}}" .
 
 \abl{briefly what has been done regarding confusion matrices and letter perception}
 
