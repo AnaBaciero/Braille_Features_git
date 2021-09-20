@@ -284,7 +284,7 @@ cluster_assignments_rt <- cutree(hclust(dist.res.rt, method = "ward.D2"), 4)
 ## 3. MODELS (for different pairs)
 
 
-\pga{A form to validate the results obtained in the analyses above is to explore if the abstract features interpreted from the hierarchical clustering can accont for the data better than other reasanable alternatives.   To this end, we implement three hypotheses of what constitute a braille feature.  These three explnations fullfill the following criteria
+\pga{A form to validate the results obtained in the analyses above is to explore if the abstract features interpreted from the hierarchical clustering can account for the data better than other reasanable alternatives.   To this end, we implement three hypotheses of what constitute a braille feature.  These three explnations fullfill the following criteria
 
     a) No two different letters should have all features in common
     b) Knowing the features, one should infer the letter.
