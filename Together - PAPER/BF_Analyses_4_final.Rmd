@@ -1,0 +1,718 @@
+---
+title: "BF_Analysis_final"
+author: "Ana Baciero"
+date: "27/5/2021"
+output: pdf_document
+---
+
+
+# Data analysis
+
+```{r data sets}
+
+library("papaja")
+library(tidyverse)
+library(dendextend)
+library(RColorBrewer)
+library(factoextra)
+library(dplyr)
+library(kableExtra)
+
+RawdataBF <- miceadds::load.Rdata2( filename="RawdataBF.RData")
+CleanBF <- miceadds::load.Rdata2( filename="CleanBF.RData")
+BrailleDotsTable <- miceadds::load.Rdata2( filename="BrailleDotsTable.RData")
+
+CleanBF%>%
+  summarize(n_distinct(SubjectID))
+
+
+CleanBF%>%
+  group_by(Pairs)%>%
+  summarise(meanRT = mean(RT),
+            meanAcc = mean(Accuracy)) -> x
+
+cor(x$meanRT, x$meanAcc)
+
+```
+
+
+## 1. DISTANCE MATRICES (or confusion matrices)
+
+Symmetrical matrix in which (ij)th element is the measure of distinction between the (i)th and the (j)th object. For dissimilarity matrices, the closer the measure is to 0, the lesser the two elements differ from each other (more confusable). The diagonal elements are usually equal to zero (or not considered) - i.e. the distinction between an object and itself is postulated as zero.
+
+
+```{r ACCURACY distance matrix}
+
+Different<- CleanBF%>%
+  filter(Rubric == "n")
+
+matrix.acc<-tapply(Different$Accuracy, list(Different$IT1, Different$IT2),mean)%>%
+  round(3)
+
+
+    # Can we make it symmetric?
+    
+    Acc.Order1 <- Different%>%
+      filter(Order==1)%>%
+      group_by(ItNumber,Pairs)%>%
+      summarise(MAcc1 = mean(Accuracy))%>%
+      ungroup()
+    
+    Acc.Order2 <-Different%>%
+      filter(Order==2)%>%
+      group_by(ItNumber,Pairs)%>%
+      summarise(MAcc2 = mean(Accuracy))%>%
+      ungroup()
+    
+    Acc.orders <- bind_cols(Acc.Order1,Acc.Order2)%>%
+      mutate(difference = MAcc1 - MAcc2,
+             OrderMatters = if_else(difference > (abs(.05)),"T",""))
+    
+    t.test(Acc.orders$MAcc1,Acc.orders$MAcc2, paired = T)
+    
+    ## YES
+    
+    ## for those whose acc differ in more than 5%: 
+    n_acc<-Acc.orders%>%
+      filter(OrderMatters=="T") #33/325 differ in more than 5% accuracy. 
+
+
+sym.acc.matrix <- (matrix.acc + t(matrix.acc))/2
+kable(round(sym.acc.matrix,3))
+
+
+```
+
+```{r RT distance matrix}
+
+
+CorrectDifferent.norm<- Different%>%
+  filter(Accuracy == 1)%>%
+  mutate(RTms = RT*1000)%>%
+  group_by(SubjectID)%>%
+  mutate(MRT_subj = mean(RTms))%>%
+  ungroup()%>%
+  mutate(normTime = RTms/MRT_subj) 
+#Normalizing RTs so mean RT = 1 per subject (as in Courrieu et al., 2004 & Wiley et al., 2016)
+
+
+matrix.rt<-tapply(CorrectDifferent.norm$normTime, list(CorrectDifferent.norm$IT1, CorrectDifferent.norm$IT2),mean)%>%
+  round(3)
+
+    # Can we make it symmetric?
+    
+    RT.Order1 <- CorrectDifferent.norm%>%
+      filter(Order==1)%>%
+      group_by(ItNumber,Pairs)%>%
+      summarise(MNRT1 = mean(normTime))%>%
+      ungroup()
+    
+    RT.Order2 <- CorrectDifferent.norm%>%
+      filter(Order==2)%>%
+      group_by(ItNumber,Pairs)%>%
+      summarise(MNRT2 = mean(normTime))%>%
+      ungroup()
+    
+    RT.orders <- bind_cols(RT.Order1,RT.Order2)%>%
+      mutate(difference = MNRT1 - MNRT2,
+             OrderMatters = if_else(difference > (abs(.05)),"T",""))
+    
+    t.test(RT.orders$MNRT1,RT.orders$MNRT2, paired = T)
+    
+    ## YES
+
+    
+sym.rt.matrix <- (matrix.rt + t(matrix.rt))/2
+kable(round(sym.rt.matrix,3))
+
+
+#Transform similarity matrix it into a dissimilarity matrix:
+
+diss.rt.matrix <- 1/sym.rt.matrix
+kable(round(diss.rt.matrix,3))
+
+```
+
+## 2. HIERARCHICAL CLUSTERING
+
+- Cluster: A collection of data points that exhibit two key features:
+
+    - Similarity of points within cluster
+    - Dissimilarity of points between clusters
+
+- Hierarchical clustering is a technique that allows us to find what are the clusters within a group of people/objects. It has two approaches:
+
+    - Agglomerative: bottom-up approach in which the algorithm starts with taking all data points as single clusters and merging them until one cluster is left.
+    - Divisive: the reverse of the agglomerative algorithm as it is a top-down approach.
+
+- The steps of clustering hierarchically (Johnson, 1967) : 
+
+    - Start with a matrix of pairwise distances between objects
+    - Begin by assigning each item to its own cluster, so that if you have N items, you now have N clusters.
+    - Find the closest (least distant) pair of items and merge them into a single cluster, so that now you have one less cluster.
+    
+        - *You can quantify how distant/similar two object’s vectors are to each other with a variety of metrics*
+            - Euclidean Distance: Square-root of the sum of the squared differences between each characteristic (usual)
+            - City Block Distance: Sum of the absolute differences between each characteristic in two vectors
+            - ...
+        
+    - Look at the distances between each cluster (including the newly created cluster), and merge the two most similar into a single cluster
+        - *There are different rules/methods for determining how similar an object is to a cluster, when determining if it can join*
+            - Single linkage: join to the cluster that has the most similar object
+            - Complete linkage: join to the cluster based on the worst case
+            - Average linkage:  join to cluster based on average distance
+            - Ward’s method: join to cluster that minimize variance within and maximize variance between clusters
+
+    - Repeat steps 2 and 3 until all items are clustered into a single cluster with N items.
+
+
+Then, inspect the dendrogram (ie., visual representation of which objects are in the same group, and when they merged) to examine what the distinct groupings 
+
+
+```{r Hierarchical clustering}
+
+# ACCURACY
+
+## Euclidian method (because of previous articles):
+
+dist.res.acc<-dist(sym.acc.matrix, method = "euclidian")
+
+        ## What linkage method to use
+          
+        ### define linkage methods
+        
+        m <- c( "average", "single", "complete", "ward")
+        names(m) <- c( "average", "single", "complete", "ward")
+        
+        ### function to compute agglomerative coefficient:
+        
+        ac1 <- function(x) {
+          cluster::agnes(dist.res.acc, method = x)$ac
+        }
+        
+        ### calculate agglomerative coefficient for each clustering linkage method
+        
+        sapply(m, ac1)
+        
+        ## we'll use ward's method (Note that agnes(*, method="ward") corresponds to hclust(*, "ward.D2"))
+
+
+dend.acc<- hclust(dist.res.acc, method = "ward.D2")%>%
+  as.dendrogram()
+
+plot(dend.acc)
+order.hclust(hclust(dist.res.acc, method = "ward.D2"))
+
+
+# RT
+
+dist.res.rt<-dist(diss.rt.matrix, method = "euclidian")
+
+
+        ## What linkage method to use
+
+        ac2 <- function(x) {
+          cluster::agnes(dist.res.rt, method = x)$ac
+        }
+      
+        
+        sapply(m, ac2)
+        
+        ## we'll use ward's method
+
+
+dend.rt<- hclust(dist.res.rt, method = "ward.D2")%>%
+  as.dendrogram()
+
+plot(dend.rt)
+
+## Optimal number of clusters
+
+sym.acc.matrix1<- sym.acc.matrix%>%
+  gdata::lowerTriangle()%>%
+  as_data_frame()
+
+fviz_nbclust(sym.acc.matrix1, kmeans, method = "wss") +
+    geom_vline(xintercept = 4, linetype = 2)+
+  labs(subtitle = "Elbow method - accuracy")
+
+
+diss.rt.matrix1<- diss.rt.matrix%>%
+  gdata::lowerTriangle()%>%
+  as_data_frame()
+
+fviz_nbclust(diss.rt.matrix1, kmeans, method = "wss") +
+    geom_vline(xintercept = 4, linetype = 2)+
+  labs(subtitle = "Elbow method - Rtdiss")
+
+## 4 (both accuracy & rt)
+
+```
+
+
+
+```{r Dendrograms with color}
+
+dend.acc4<- dend.acc %>% 
+  set("branches_k_color", value = c( "dodgerblue2", "darkolivegreen3","darkorange2", "darkorchid3"), k = 4)%>%
+  plot(horiz =F, main = "Accuracy")
+
+dend.rt4<- dend.rt%>% 
+  set("branches_k_color", value = c("darkorchid3", "darkorange2","dodgerblue2" ,"darkolivegreen3"), k = 4)%>%
+  plot(horiz = F, main = "RT")
+
+
+cluster_assignments_acc <- cutree(hclust(dist.res.acc, method = "ward.D2"), 4)
+cluster_assignments_rt <- cutree(hclust(dist.res.rt, method = "ward.D2"), 4)
+
+```
+
+
+## 3. MODELS (for different pairs)
+
+Criteria:
+
+    a) No two different letters should have all features in common
+    b) Knowing the features, one should know the letter.
+    c) No feature should be the result of the combination of more than two other features. 
+    
+
+Ideas:
+
+    a) Each position in the 2x3 matrix is a feature. That is, any two letters that share either a raised dot or a gap in a specific position, would share that            feature.
+    
+      EXAMPLE:    | Pair | Pos.1 | Pos.2 | Pos.3 | Pos.4 | Pos.5 | Pos.6 |
+                  --------------------------------------------------------
+                  | b k  | 2/12  |   0   |   0   | 2/12  | 2/12  |  2/12 |
+                  --------------------------------------------------------
+                  | b C  | 2/12  |   0   | 2/12  |   0   | 2/12  | 2/12  |
+                  
+                  
+    b) Only raised dots are features.
+    
+      EXAMPLE:    | Pair | Dot.1 | Dot.2 | Dot.3 | Dot.4 | Dot.5 | Dot.6 |
+                  --------------------------------------------------------
+                  | b k  |  2/4  |   0   |   0   |   0   |   0   |   0   |
+                  --------------------------------------------------------
+                  | b C  |  2/4  |   0   |   0   |   0   |   0   |   0   |
+                  
+                  
+    c) There are more "abstract" features, related to the shapes that different combinations of dots make. Exploring the dentdrogram, these features could be:
+    
+        - Vertical lines: in column 1 (dots 12, 23, or 123) and in column 2 (dots 45, 56, or 456)
+        - Horizontal lines: in row 1 (dots 14), in row 2 (dots 25), and in row 3 (dots 36)
+        - Gap in middle line: dots 25 are not raised
+        - Gap in the bottom line: dots 36 are not raised (DIVIDES BASE PATTERNS (that only use the upper four dot positions) FROM THEIR DERIVATIVES)
+        - DOT 3 ??
+        
+    
+      EXAMPLE:    | Pair | Verticalc1 | Verticalc2 | Horizontal1 | Horizontal2 | Horizontal3 | GapMiddle | GapBottom |
+                  ----------------------------------------------------------------------------------------------------
+                  | b k  |     0      |     0      |      0      |      0      |      0      |      0    |      0    |
+                  ----------------------------------------------------------------------------------------------------
+                  | b c  |     0      |     0      |      0      |      0      |      0      |      0    |    2/4    |
+                  
+
+      
+
+    d) There can also be some other variables:
+    
+        - Mirror letters: a letter can be a mirror (by horizontal or vertical planes) of other letter (e.g., vertical plane: d-f, e-i, h-j, r-w; horizontal plane:           m-u, n-z, p-v). A feature of a letter can be "is a mirror of other letter". (although it probably doesn't fulfill criteria c)
+        
+        - Number of dots raised: the more dots a letter has raised, the more complex it becomes. 
+
+
+
+** Important to note: Dot 3 should be crucial. Check it! 
+
+
+### Dataset with all possible pairs and the dots raised in each one of their letters
+
+```{r All possible pairs}
+
+stim.1 <- letters
+stim.2 <- letters
+
+pair <- array(dim=26*26)
+type <- array(dim = 26*26)
+
+Start<- as_data_frame(c("S"))%>%
+  rename(stimuli = value)
+
+for(i in 1:26){
+  for(j in 1:26){
+    if (stim.1[i] == stim.2[j]) {
+      type [(i-1)*26+j] <- 0
+    }
+    else {
+      type[(i-1)*26+j] <- 1
+    }
+    pair[(i-1)*26+j] <- paste(stim.1[i],stim.2[j])
+  }
+}
+
+type <- as.character(type)
+pairs <- as.character(pair)
+
+allpairs<- as.data.frame(cbind(pairs, type))
+
+alldifferentpairs <- allpairs%>%
+  filter(type== 1)%>%
+  mutate(Pairs = pairs)%>%
+  separate(pairs, c("IT1", "IT2"))%>%
+  select(Pairs, IT1, IT2)
+
+x<- BrailleDotsTable%>%
+  select(-DotPosition)
+colnames(x)<- c("IT1", "DotNumber_1",  "Dot1_1", "Dot2_1", "Dot3_1",  "Dot4_1",  "Dot5_1",  "Dot6_1")
+y<- BrailleDotsTable%>%
+  select(-DotPosition)
+colnames(y)<- c("IT2", "DotNumber_2",  "Dot1_2", "Dot2_2", "Dot3_2",  "Dot4_2",  "Dot5_2",  "Dot6_2")
+
+braille.features<- alldifferentpairs%>%
+  merge(x, by = "IT1")%>%
+  merge(y, by = "IT2")%>%
+  select(Pairs, IT1, DotNumber_1, Dot1_1, Dot2_1, Dot3_1, Dot4_1, Dot5_1, Dot6_1, IT2, DotNumber_2, Dot1_2, Dot2_2, Dot3_2, Dot4_2, Dot5_2, Dot6_2)
+
+```
+
+
+
+```{r Feature factors}
+
+# Option 1
+## Each raised dot & gap is a feature: P1, P2, P3, P4, P5, P6
+
+
+braille.features.1<- braille.features%>%
+  group_by(Pairs)%>%
+  mutate(DotNumber_1 = as.numeric(DotNumber_1),
+         DotNumber_2 = as.numeric(DotNumber_2),
+         TotalDots_Pair = sum(DotNumber_1, DotNumber_2),
+         P1 = if_else(Dot1_1 == Dot1_2 , 2/12,0/12),
+         P2 = if_else(Dot2_1 == Dot2_2 , 2/12,0/12),
+         P3 = if_else(Dot3_1 == Dot3_2 , 2/12,0/12),
+         P4 = if_else(Dot4_1 == Dot4_2 , 2/12,0/12),
+         P5 = if_else(Dot5_1 == Dot5_2 , 2/12,0/12),
+         P6 = if_else(Dot6_1 == Dot6_2 , 2/12,0/12))%>%
+  ungroup()%>%
+  select(Pairs, P1, P2, P3, P4, P5, P6)
+
+
+
+# Option 2
+## Each raised dot is a feature: Dot1, Dot2, Dot3, Dot4, Dot5, Dot6
+
+
+braille.features.2<- braille.features%>%
+  group_by(Pairs)%>%
+  mutate(DotNumber_1 = as.numeric(DotNumber_1),
+         DotNumber_2 = as.numeric(DotNumber_2),
+         TotalDots_Pair = sum(DotNumber_1, DotNumber_2),
+         Dot1 = (if_else(Dot1_1 == 1 & Dot1_2 == 1,2,0))/TotalDots_Pair,
+         Dot2 = (if_else(Dot2_1 == 1 & Dot2_2 == 1,2,0))/TotalDots_Pair,
+         Dot3 = (if_else(Dot3_1 == 1 & Dot3_2 == 1,2,0))/TotalDots_Pair,
+         Dot4 = (if_else(Dot4_1 == 1 & Dot4_2 == 1,2,0))/TotalDots_Pair,
+         Dot5 = (if_else(Dot5_1 == 1 & Dot5_2 == 1,2,0))/TotalDots_Pair,
+         Dot6 = (if_else(Dot6_1 == 1 & Dot6_2 == 1,2,0))/TotalDots_Pair)%>%
+  select(Pairs, Dot1, Dot2, Dot3, Dot4, Dot5, Dot6)
+
+
+
+# Option 3
+## Abstract features (x8): Verticals (V_c1, V_c2), Horizontals (H_1, H_2, H_3), Gaps (MiddleGap, BottomGap), Dot3
+
+
+braille.features.3<- braille.features%>%
+  group_by(Pairs)%>%
+  mutate(Vertical1_1 = if_else(Dot1_1 == 1 & Dot2_1 == 1,1,0),
+         Vertical1_2 = if_else(Dot3_1 == 1 & Dot2_1 == 1,1,0),
+         Vertical1_3 = if_else(Dot1_1 == 1 & Dot2_1 == 1 & Dot3_1 == 1,1,0),
+         Vertical2_1 = if_else(Dot4_1 == 1 & Dot5_1 == 1,1,0),
+         Vertical2_2 = if_else(Dot5_1 == 1 & Dot6_1 == 1,1,0),
+         Vertical2_3 = if_else(Dot4_1 == 1 & Dot5_1 == 1 & Dot6_1 == 1,1,0),
+         VerticalsIT1_c1 = if_else(Vertical1_1 == 1 | Vertical1_2 == 1 | Vertical1_3 == 1,1,0),
+         VerticalsIT1_c2 = if_else(Vertical2_1 == 1 | Vertical2_2 == 1 | Vertical2_3 == 1,1,0))%>%
+  select(-Vertical1_1, -Vertical1_2, -Vertical1_3, -Vertical2_1, -Vertical2_2, -Vertical2_3)%>%
+  mutate(Vertical1_1 = if_else(Dot1_2 == 1 & Dot2_2 == 1,1,0),
+         Vertical1_2 = if_else(Dot3_2 == 1 & Dot2_2 == 1,1,0),
+         Vertical1_3 = if_else(Dot1_2 == 1 & Dot2_2 == 1 & Dot3_2 == 1,1,0),
+         Vertical2_1 = if_else(Dot4_2 == 1 & Dot5_2 == 1,1,0),
+         Vertical2_2 = if_else(Dot5_2 == 1 & Dot6_2 == 1,1,0),
+         Vertical2_3 = if_else(Dot4_2 == 1 & Dot5_2 == 1 & Dot6_2 == 1,1,0),
+         VerticalsIT2_c1 = if_else(Vertical1_1 == 1 | Vertical1_2 == 1 | Vertical1_3 == 1,1,0),
+         VerticalsIT2_c2 = if_else(Vertical2_1 == 1 | Vertical2_2 == 1 | Vertical2_3 == 1,1,0),
+         TotalVerticals_IT1 = sum(VerticalsIT1_c1, VerticalsIT1_c2),
+         TotalVerticals_IT2 = sum(VerticalsIT2_c1, VerticalsIT2_c2),
+         SharedVertical_c1 = if_else(VerticalsIT1_c1 == 1 & VerticalsIT2_c1 == 1, 2, 0),
+         SharedVertical_c2 = if_else(VerticalsIT1_c2 == 1 & VerticalsIT2_c2 == 1, 2, 0),)%>%
+  select(-Vertical1_1, -Vertical1_2, -Vertical1_3, -Vertical2_1, -Vertical2_2, -Vertical2_3)%>%
+  mutate(HorizontalIT1_1 = if_else(Dot1_1 == 1 & Dot4_1 == 1,1,0),
+         HorizontalIT1_2 = if_else(Dot2_1 == 1 & Dot5_1 == 1,1,0),
+         HorizontalIT1_3 = if_else(Dot3_1 == 1 & Dot6_1 == 1,1,0),
+         HorizontalIT2_1 = if_else(Dot1_2 == 1 & Dot4_2 == 1,1,0),
+         HorizontalIT2_2 = if_else(Dot2_2 == 1 & Dot5_2 == 1,1,0),
+         HorizontalIT2_3 = if_else(Dot3_2 == 1 & Dot6_2 == 1,1,0),
+         TotalHorizontals_IT1 = sum(HorizontalIT1_1, HorizontalIT1_2, HorizontalIT1_3),
+         TotalHorizontals_IT2 = sum(HorizontalIT2_1, HorizontalIT2_2, HorizontalIT2_3),
+         SharedHorizontal_1 = if_else(HorizontalIT1_1 == 1 & HorizontalIT2_1 == 1, 2, 0),
+         SharedHorizontal_2 = if_else(HorizontalIT1_2 == 1 & HorizontalIT2_2 == 1, 2, 0),
+         SharedHorizontal_3 = if_else(HorizontalIT1_3 == 1 & HorizontalIT2_3 == 1, 2, 0))%>%
+  select(-HorizontalIT1_1, -HorizontalIT1_2, -HorizontalIT1_3, -HorizontalIT2_1, -HorizontalIT2_2, -HorizontalIT2_3)%>%
+  mutate(GapMiddle_IT1 = if_else(Dot2_1 == 0 & Dot5_1 == 0,1,0),
+         GapMiddle_IT2 = if_else(Dot2_2 == 0 & Dot5_2 == 0,1,0),
+         GapBottom_IT1 = if_else(Dot3_1 == 0 & Dot6_1 == 0,1,0),
+         GapBottom_IT2 = if_else(Dot3_2 == 0 & Dot6_2 == 0,1,0),
+         TotalGaps_IT1 = sum(GapBottom_IT1,GapMiddle_IT1),
+         TotalGaps_IT2 = sum(GapBottom_IT2,GapMiddle_IT2),
+         SharedGapMiddle = if_else(GapMiddle_IT1 ==1 & GapMiddle_IT2 == 1, 2, 0),
+         SharedGapBottom = if_else(GapBottom_IT1 ==1 & GapBottom_IT2 == 1, 2, 0),
+         SharedDot3 = if_else(Dot3_1 == 1 & Dot3_2 == 1,2,0),
+         TotalFeatures_pair = sum(TotalGaps_IT1, TotalGaps_IT2, TotalHorizontals_IT1, TotalHorizontals_IT2,TotalVerticals_IT1, TotalVerticals_IT2,Dot3_1,Dot3_2),
+         V_c1 = SharedVertical_c1/TotalFeatures_pair,
+         V_c2 = SharedVertical_c2/TotalFeatures_pair,
+         H_1 = SharedHorizontal_1/TotalFeatures_pair,
+         H_2 = SharedHorizontal_2/TotalFeatures_pair,
+         H_3 = SharedHorizontal_3/TotalFeatures_pair,
+         MiddleGap = SharedGapMiddle/TotalFeatures_pair,
+         BottomGap = SharedGapBottom/TotalFeatures_pair,
+         Dot3 = SharedDot3/TotalFeatures_pair)%>%
+  select(Pairs, V_c1, V_c2,H_1,H_2,H_3,MiddleGap,BottomGap,Dot3)
+         
+         
+#MirrorH = if_else(Pairs == "d f" | Pairs == "f d" | Pairs == "e i" | Pairs == "i e" | Pairs == "h j" |Pairs == "j h" |Pairs == "r w" |Pairs == "w r" , 1, 0),
+#MirrorV = if_else(Pairs == "m u" | Pairs == "u m" | Pairs == "n z" | Pairs == "z n" | Pairs == "p v" |Pairs == "v p" , 1, 0),
+
+
+```
+
+```{r Features Datasets}
+
+#braille.features.1 --> P1, P2, P3, P4, P5, P6
+braille.features.2
+braille.features.3
+
+```
+
+
+
+```{r Models accuracy}
+library(lme4)
+
+###########
+# POSITION
+###########
+
+Acc.tomodel.1 <- Different%>%
+  select(-Subject, -KEY, -Rubric,-RT, -Order)%>%
+  merge(braille.features.1, by = "Pairs")
+
+
+acc_position_mo <- glmer(Accuracy ~ scale(P1) + scale(P2) + scale(P3) + scale(P4) + scale(P5) + scale(P6) +(1|SubjectID) + (1|ItNumber), data = Acc.tomodel.1, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(acc_position_mo)
+
+#save(acc_position_mo, file = "acc_position_mo.RData")
+
+
+###########
+# DOTS
+###########
+
+Acc.tomodel.2 <- Different%>%
+  select(-Subject, -KEY, -Rubric,-RT, -Order)%>%
+  merge(braille.features.2, by = "Pairs")
+
+
+acc_dots_mo <- glmer(Accuracy ~ scale(Dot1) + scale(Dot2) + scale(Dot3) + scale(Dot4) + scale(Dot5) + scale(Dot6) +(1|SubjectID) + (1|ItNumber), data = Acc.tomodel.2, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(acc_dots_mo)
+
+#save(acc_dots_mo, file = "acc_dots_mo.RData")
+
+
+
+###########
+# ABSTRACT
+###########
+
+Acc.tomodel.3 <- Different%>%
+  select(-Subject, -KEY, -Rubric,-RT, -Order)%>%
+  merge(braille.features.3, by = "Pairs")
+
+
+acc_abstract_mo <- glmer(Accuracy ~ scale(V_c1) + scale(V_c2) + scale(H_1) + scale(H_2) + scale(H_3) + scale(MiddleGap) + scale(BottomGap) +  scale(Dot3) +(1|SubjectID) + (1|ItNumber), data = Acc.tomodel.3, family = binomial,control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(acc_abstract_mo)
+
+#save(acc_abstract_mo, file = "acc_abstract_mo.RData")
+
+
+
+
+# Comparing Non-Nested Models:  CAREFUL! wHAT IF ONE MODEL (I.E.,MODEL3) DOESN'T HAVE THE SAME DF??
+
+Acc.model.comparison <- data.frame(Model = c("position", "dots", "abstract"),
+AIC = c(AIC(acc_position_mo), AIC(acc_dots_mo), AIC(acc_abstract_mo)),
+BIC = c(BIC(acc_position_mo), BIC(acc_dots_mo), BIC(acc_abstract_mo)),
+stringsAsFactors = FALSE)
+kable(Acc.model.comparison)
+#CHOOSE MODEL 1 (lower AIc & BIC)
+
+
+
+###########
+
+performance::r2_nakagawa(acc_position_mo)
+performance::r2_nakagawa(acc_position_mo, by_group = T)
+
+performance::r2_nakagawa(acc_dots_mo)
+performance::r2_nakagawa(acc_dots_mo, by_group = T)
+
+performance::r2_nakagawa(acc_abstract_mo)
+performance::r2_nakagawa(acc_abstract_mo, by_group = T)
+
+
+### marginal R2 describes the proportion of variance explained by the fixed factor(s) alone & conditional R2 describes the proportion of variance explained by both the fixed and random factors. 
+
+##QUESTION:HOW DOES ONE INTERPRET THIS??
+
+```
+
+
+
+```{r Models RT}
+
+###########
+# POSITION
+###########
+
+RT.tomodel.1 <- CorrectDifferent.norm%>%
+  select(-Subject, -KEY, -Rubric,-Accuracy, -Order)%>%
+  merge(braille.features.1, by = "Pairs")
+
+
+RT_position_mo <- glmer(normTime ~ scale(P1) + scale(P2) + scale(P3) + scale(P4) + scale(P5) + scale(P6) +(1|SubjectID) + (1|ItNumber), data = RT.tomodel.1, family = Gamma(link = "identity"),control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(RT_position_mo)
+
+
+###########
+# DOTS
+###########
+
+RT.tomodel.2 <- CorrectDifferent.norm%>%
+  select(-Subject, -KEY, -Rubric,-Accuracy, -Order)%>%
+  merge(braille.features.2, by = "Pairs")
+
+
+RT_dots_mo <- glmer(normTime ~ scale(Dot1) + scale(Dot2) + scale(Dot3) + scale(Dot4) + scale(Dot5) + scale(Dot6) +(1|SubjectID) + (1|ItNumber), data = RT.tomodel.2, family = Gamma(link = "identity"),control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(RT_dots_mo)
+
+
+
+###########
+# ABSTRACT
+###########
+
+RT.tomodel.3 <- CorrectDifferent.norm%>%
+  select(-Subject, -KEY, -Rubric,-Accuracy, -Order)%>%
+  merge(braille.features.3, by = "Pairs")
+
+
+RT_abstract_mo <- glmer(normTime ~ scale(V_c1) + scale(V_c2) + scale(H_1) + scale(H_2) + scale(H_3) + scale(MiddleGap) + scale(BottomGap) +  scale(Dot3) +(1|SubjectID) + (1|ItNumber), data = RT.tomodel.3, family = Gamma(link = "identity"),control= glmerControl(optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
+summary(RT_abstract_mo)
+
+
+
+
+# Comparing Non-Nested Models:  CAREFUL! wHAT IF ONE MODEL (I.E.,MODEL3) DOESN'T HAVE THE SAME DF??
+
+RT.model.comparison <- data.frame(Model = c("position", "dots", "abstract"),
+AIC = c(AIC(RT_position_mo), AIC(RT_dots_mo), AIC(RT_abstract_mo)),
+BIC = c(BIC(RT_position_mo), BIC(RT_dots_mo), BIC(RT_abstract_mo)),
+stringsAsFactors = FALSE)
+kable(RT.model.comparison)
+#CHOOSE MODEL 2 (lower AIc & BIC)
+
+
+
+###########
+
+performance::r2_nakagawa(RT_position_mo)
+performance::r2_nakagawa(RT_position_mo, by_group = T)
+
+performance::r2_nakagawa(RT_dots_mo)
+performance::r2_nakagawa(RT_dots_mo, by_group = T)
+
+performance::r2_nakagawa(RT_abstract_mo)
+performance::r2_nakagawa(RT_abstract_mo, by_group = T)
+
+``` 
+
+
+
+############################################################
+
+
+## 3. SAME PAIRS 
+
+FOLLOWING WILEY... "to determine whether the visual complexity of letters affects perception, [...] the visual complexity of each letter was represented by its total number of visual features [...]. Over the set of 45 letters, complexity values ranged from 4 to 15 features (mean = 7.33). The correlation between visual complexity and both average discrimination time and accuracy was calculated for each participant. The Fisher z-transformation was applied to each correlation before averaging, and then back-transformed to the Pearson’s r. 95% confidence intervals are provided for each average correlation and for the difference between the groups.
+
+
+```{r}
+
+# When "Total number of features" = DOTS
+
+BrailleDotsTable%>%
+  rename(IT1 = "Character") -> BrailleDotsTable_2
+
+CleanBF%>%
+  filter(Rubric=="m")%>%
+  merge(BrailleDotsTable_2, by="IT1")%>%
+  select(SubjectID, ItNumber, Pairs, IT1, IT2, DotNumber, Accuracy, RT)%>%
+  mutate(RTms = RT*1000)%>%
+  group_by(SubjectID)%>%
+  mutate(MRT_subj = mean(RTms))%>%
+  ungroup()%>%
+  mutate(normTime = RTms/MRT_subj) -> same_data
+
+
+
+#correlation between Number of Dots & RT & acc
+
+same_data%>%
+  group_by(Pairs)%>%
+  mutate(MAcc_byPair = mean(Accuracy))%>%
+  ungroup()-> toplot
+
+
+ggplot(toplot, mapping = aes(x=DotNumber, y=MAcc_byPair)) +
+  geom_point(shape = 20, size = 2) +
+  theme_apa()+
+  stat_smooth(method = "lm",
+        col = "forestgreen",
+        se = T,
+        size = 1)
+toplot%>%
+  filter(Accuracy==1)%>%
+  mutate(MRT_byPair = mean(normTime),
+         MRTms_byPair = mean(RTms)) ->toplot2
+
+ggplot(toplot2, mapping = aes(x=DotNumber, y=MRT_byPair)) +
+  geom_point(shape = 20, size = 2) +
+  theme_apa()+
+  stat_smooth(method = "lm",
+        col = "forestgreen",
+        se = T,
+        size = 1)
+
+ggplot(toplot2, mapping = aes(x=DotNumber, y=MRTms_byPair)) +
+  geom_point(shape = 20, size = 2) +
+  theme_apa()+
+  stat_smooth(method = "lm",
+        col = "forestgreen",
+        se = T,
+        size = 1)
+
+# "The average correlation between discrimination time on correct Same Pair trials and the total number of visual features in a letter is r = 0.655 for the NG, 95% CI [0.543, 0.745] and for the EG r = −0.295 [−0.492, −0.070]; the difference in the Fisher z-scores of 1.09 is significant [0.80, 1.37]. Accuracy patterns in precisely the same way: the correlation between the number of visual features and average accuracy was −0.143 [−0.331, 0.078] for the NG and 0.350 [0.165, 0.512] for the EG; the difference in z-scores of 0.50 is significant [0.22, 0.78]. In summary, more complex letters are correlated with significantly faster and more accurate “same” responses for the EG relative to the NG."
+
+
+```
+
