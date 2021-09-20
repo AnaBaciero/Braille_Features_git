@@ -3,6 +3,19 @@ title: "BF_Analysis_final"
 author: "Ana Baciero"
 date: "27/5/2021"
 output: pdf_document
+header-includes:
+- \usepackage{braille}
+- \usepackage{color}
+- \usepackage{xcolor}
+- \usepackage{braille}
+- \definecolor{darkgreen}{RGB}{0,127,0}
+- \definecolor{darkyellow}{RGB}{90,90,0}
+- \newcommand{\remark}[3]{{\colorbox{#2}{\sffamily\scriptsize\bfseries\color{white}{#1}}}{\sffamily\small\itshape\color{#2}{#3}}}
+- \newcommand{\abl}[1]{\remark{abl}{blue}{#1}}
+- \newcommand{\pga}[1]{\remark{pga}{darkyellow}{#1}}
+- \newcommand{\mpl}[1]{\remark{mpl}{red}{#1}}
+- \newcommand{\jadl}[1]{\remark{jad}{darkgreen}{#1}}
+- \DeclareUnicodeCharacter{2212}{-}
 ---
 
 
@@ -270,13 +283,18 @@ cluster_assignments_rt <- cutree(hclust(dist.res.rt, method = "ward.D2"), 4)
 
 ## 3. MODELS (for different pairs)
 
-Criteria:
+
+\pga{A form to validate the results obtained in the analyses above is to explore if the abstract features interpreted from the hierarchical clustering can accont for the data better than other reasanable alternatives.   To this end, we implement three hypotheses of what constitute a braille feature.  These three explnations fullfill the following criteria
 
     a) No two different letters should have all features in common
-    b) Knowing the features, one should know the letter.
-    c) No feature should be the result of the combination of more than two other features. 
-    
+    b) Knowing the features, one should infer the letter.
+    c) No feature should be the result of the combination other features. 
 
+The three hypotheses under consideration vary in their level of abstraction; the first two hypothesys are based on *tixels* (i.e., tactile pixels), Tixel, in haptic devices are the smallest transmition unit in a tactile matrix. Evindently, the standard braille cell has 6 tixels. The first hypothesis simply assumes that the features of braille characters are just tixels that correspond to the raised dots. Similarly, the second hypothesis assumes that the feaatures of braille characters are the tixels of both raised and unraised dots. In contrast, the third hypothesis is not  
+
+$Hypothesis_{raise}$: 
+    
+}
 Ideas:
 
     a) Each position in the 2x3 matrix is a feature. That is, any two letters that share either a raised dot or a gap in a specific position, would share that            feature.
