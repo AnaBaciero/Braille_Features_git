@@ -42,9 +42,9 @@ CleanBF%>%
 CleanBF%>%
   group_by(Pairs)%>%
   summarise(meanRT = mean(RT),
-            meanAcc = mean(Accuracy)) -> x
+            meanAcc = mean(Accuracy))  -> summary_by_pair
 
-cor(x$meanRT, x$meanAcc)
+cor(summary_by_pair$meanRT, summary_by_pair$meanAcc)
 
 ```
 
@@ -290,7 +290,7 @@ cluster_assignments_rt <- cutree(hclust(dist.res.rt, method = "ward.D2"), 4)
     b) Knowing the features, one should infer the letter.
     c) No feature should be the result of the combination other features. 
 
-The three hypotheses under consideration vary in their level of abstraction; the first two hypothesys are based on *tixels* (i.e., tactile pixels), Tixel, in haptic devices are the smallest transmition unit in a tactile matrix. Evindently, the standard braille cell has 6 tixels. The first hypothesis simply assumes that the features of braille characters are just tixels that correspond to the raised dots. Similarly, the second hypothesis assumes that the feaatures of braille characters are the tixels of both raised and unraised dots. In contrast, the third hypothesis is not  
+The three hypotheses under consideration vary in their level of abstraction; the first two hypothesys are based on *tixels* (i.e., tactile pixels), Tixel, in haptic devices are the smallest transmition unit in a tactile matrix. Evindently, the standard braille cell has 6 tixels. The first hypothesis simply assumes that the features of braille characters are just tixels that correspond to the raised dots. Similarly, the second hypothesis assumes that the feaatures of braille characters are the tixels of both raised and unraised dots. In contrast, the third hypothesis is not tixel based, but it is instead based on the the more abstract features that emerged from our analysis of the hierarchical clustering.
 
 $Hypothesis_{raise}$: 
     
@@ -733,4 +733,44 @@ ggplot(toplot2, mapping = aes(x=DotNumber, y=MRTms_byPair)) +
 
 
 ```
+
+
+
+
+
+Pablo messing with things:
+
+```{r}
+library(GGally)
+braille.features.1[,2:7]%>% rowSums ->model1a.similarity
+braille.features.2[,2:7]%>% rowSums ->model1b.similarity
+braille.features.3[,2:8]%>% rowSums ->model2.similarity
+
+tibble(braille.features.1[,1],
+       model1a.similarity,
+       model1b.similarity,
+       model2.similarity) %>%
+  inner_join(summary_by_pair)-> all.models 
+
+
+all.models %>%
+  ggplot(aes(x=model1a.similarity,y=model1b.similarity))+
+  geom_jitter(alpha=.1,height = 0.01, width = .01)
+
+all.models %>%
+filter(model1a.similarity==0)
+
+all.models %>%
+  select(-Pairs) %>%
+  ggpairs()
+
+
+
+all.models %>%
+filter(model1a.similarity==0 & meanAcc>.7)
+
+```
+
+There are a number of zeroes in the model 1b. So to check what letters the correspond, this is to check which ones there are 
+
 

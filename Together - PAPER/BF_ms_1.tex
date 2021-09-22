@@ -1,40 +1,50 @@
-\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 %
-\documentclass[english,man]{apa7}
+\documentclass[
+  english,
+  man]{apa7}
+\usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-  \usepackage{textcomp} % provides euro and other symbols
-\else % if luatex or xelatex
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
   \usepackage{unicode-math}
-  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
+% Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage[]{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
-\IfFileExists{parskip.sty}{%
-\usepackage{parskip}
-}{% else
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-}
-\usepackage{hyperref}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-            pdftitle={What determines the similarity of braille letters? A matrix of perceived letter similarity in braille by blind individuals},
-            pdfkeywords={Braille, Letter Identity Coding, Letter Confusability Matrix},
-            pdfborder={0 0 0},
-            breaklinks=true}
-\urlstyle{same}  % don't use monospace font for urls
-\usepackage{graphicx,grffile}
+  pdftitle={What determines the similarity of braille letters? A matrix of perceived letter similarity in braille by blind individuals},
+  pdfauthor={Ana Baciero1,2, Pablo Gomez3, Jon Andoni Duñabeitia1,4, \& Manuel Perea1,5},
+  pdflang={en-EN},
+  pdfkeywords={Braille, Letter Identity Coding, Letter Confusability Matrix},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -43,16 +53,23 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{0}
-
-% set default figure placement to htbp
+% Set default figure placement to htbp
 \makeatletter
 \def\fps@figure{htbp}
 \makeatother
-
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
 % Manuscript styling
 \usepackage{upgreek}
 \captionsetup{font=singlespacing,justification=justified}
@@ -68,9 +85,9 @@
 
 % Create new environments so endfloat can handle them
 % \newenvironment{ltable}
-%   {\begin{landscape}\begin{center}\begin{threeparttable}}
-%   {\end{threeparttable}\end{center}\end{landscape}}
-\newenvironment{lltable}{\begin{landscape}\begin{center}\begin{ThreePartTable}}{\end{ThreePartTable}\end{center}\end{landscape}}
+%   {\begin{landscape}\centering\begin{threeparttable}}
+%   {\end{threeparttable}\end{landscape}}
+\newenvironment{lltable}{\begin{landscape}\centering\begin{ThreePartTable}}{\end{ThreePartTable}\end{landscape}}
 
 % Enables adjusting longtable caption width to table width
 % Solution found at http://golatex.de/longtable-mit-caption-so-breit-wie-die-tabelle-t15767.html
@@ -89,17 +106,12 @@
   {\section{\normalfont\normalsize\abstractname}}
   {\section*{\normalfont\normalsize\abstractname}}
   {}{\typeout{Failed to patch abstract.}}
+\patchcmd{\HyOrg@maketitle}
+  {\section{\protect\normalfont{\@title}}}
+  {\section*{\protect\normalfont{\@title}}}
+  {}{\typeout{Failed to patch title.}}
 \makeatother
 \shorttitle{Braille letter similarity}
-\author{Ana Baciero\textsuperscript{1,2}, Pablo Gomez\textsuperscript{3}, Jon Andoni Duñabeitia\textsuperscript{1,4}, \& Manuel Perea\textsuperscript{1,5}}
-\affiliation{
-\vspace{0.5cm}
-\textsuperscript{1} Universidad Antonio de Nebrija\\\textsuperscript{2} DePaul University\\\textsuperscript{3} California State University San Bernardino, Palm Desert Campus\\\textsuperscript{4} The Arctic University of Norway\\\textsuperscript{5} Universitat de València}
-\authornote{
-Enter author note here.
-
-
-Correspondence concerning this article should be addressed to Ana Baciero, Santa Cruz de Marcenado, 27. 28015, Madrid,Spain. E-mail: abaciero@nebrija.es}
 \keywords{Braille, Letter Identity Coding, Letter Confusability Matrix\newline\indent Word count: X}
 \DeclareDelayedFloatFlavor{ThreePartTable}{table}
 \DeclareDelayedFloatFlavor{lltable}{table}
@@ -122,21 +134,62 @@ Correspondence concerning this article should be addressed to Ana Baciero, Santa
 \newcommand{\pga}[1]{\remark{pga}{darkyellow}{#1}}
 \newcommand{\mpl}[1]{\remark{mpl}{red}{#1}}
 \newcommand{\jadl}[1]{\remark{jad}{darkgreen}{#1}}
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
-  \usepackage[shorthands=off,main=english]{babel}
-\else
-  % load polyglossia as late as possible as it *could* call bidi if RTL lang (e.g. Hebrew or Arabic)
+\ifxetex
+  % Load polyglossia as late as possible: uses bidi with RTL langages (e.g. Hebrew, Arabic)
   \usepackage{polyglossia}
   \setmainlanguage[]{english}
+\else
+  \usepackage[main=english]{babel}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
 \fi
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1 \everypar{\setlength{\hangindent}{\cslhangindent}}\ignorespaces\fi
+  % set entry spacing
+  \ifnum #2 > 0
+  \setlength{\parskip}{#2\baselineskip}
+  \fi
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
 \title{What determines the similarity of braille letters? A matrix of perceived letter similarity in braille by blind individuals}
-
+\author{Ana Baciero\textsuperscript{1,2}, Pablo Gomez\textsuperscript{3}, Jon Andoni Duñabeitia\textsuperscript{1,4}, \& Manuel Perea\textsuperscript{1,5}}
 \date{}
+
+
+\authornote{
+
+Enter author note here.
+
+The authors made the following contributions. Ana Baciero: Conceptualization, Design, Data preparation and analyses, Writing - Original Draft Preparation, Writing - Review \& Editing; Pablo Gomez: Conceptualization, Data preparation and analyses, Writing - Original Draft Preparation; Jon Andoni Duñabeitia: Writing - Review \& Editing; Manuel Perea: Conceptualization, Data preparation and analyses, Writing - Original Draft Preparation.
+
+Correspondence concerning this article should be addressed to Ana Baciero, Santa Cruz de Marcenado, 27. 28015, Madrid,Spain. E-mail: \href{mailto:abaciero@nebrija.es}{\nolinkurl{abaciero@nebrija.es}}
+
+}
+
+\affiliation{\vspace{0.5cm}\textsuperscript{1} Universidad Antonio de Nebrija\\\textsuperscript{2} DePaul University\\\textsuperscript{3} California State University San Bernardino, Palm Desert Campus\\\textsuperscript{4} The Arctic University of Norway\\\textsuperscript{5} Universitat de València}
 
 \abstract{
 Letters are the essential components of words. In alphabetic writing systems, letter identification is generally understood as a hierarchical process: from the detection of letter features to the activation of the letter's abstract representation. Recent research has shown that this process is modulated by visual-letter similarity. To operationalize how visual similarity affects the interplay between printed input and abstract representations, researchers have created confusability matrices for letters in various alphabets. Here, we expand this research by examininig, in a parallel manner, the similarity of braille letters, as well as the features that make braille letters similar/dissimilar among themselves, for both naïve (sighted individuals) and expert braille readers (blind individuals). To do so, we conducted a same-different judgement task and created similarity matrices for accuracy and response times, and further analyzed the data via hierarchical clustering and linear mixed-effects models. This article presents a braille letter confusability matrix, and our findings evidencing the specific features, both perceptual and knowledge-based, that affect braille letter perception. These findings are important not only to design future studies on braille reading, but also to develop novel strategies for teaching the braille alphabet to both children and adults.
 }
+
+
 
 \begin{document}
 \maketitle
@@ -163,15 +216,15 @@ We dont need the numberging below;It is moslty to keep track
 
 {\colorbox{darkyellow}{\sffamily\scriptsize\bfseries\color{white}{pga}}}{\sffamily\small\itshape\color{darkyellow}{Why}}
 
-For most sighted people, the small raised dot patterns that configure braille characters feel like little more than an undifferentiated textured surface. Similarly, when we see graphemes of an alphabet or that we are unfamiliar with, it is hard to distinguish among the different symbols that, for the untrained eye, look \enquote{alike}. However, expert readers (of braille, or any other writing system) automatically extract the critical features in letters, mostly unbothered by their accidental features. Indeed, there is a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations (see Carreiras et al., 2012; Dehaene et al., 2005; Grainger et al., 2008; Pelli et al., 2006). On this general basis, many studies have been devoted to the examination of the similarity/confusability of letters in various alphabets (e.g., Roman: Simpson et al., 2013; see also Mueller \& Weidemann, 2012 for a review; Arabic: Boudelaa et al., 2020; Wiley et al., 2016), which has allowed researchers to carry out further investigations in reading and word recognition while controlling for letter similarity ({\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{CITE: e.g., XXXX Marcet...}}), and examine ways to {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{Say something about expertise effects -> WILEY. and that together --> move towards a comprehensive understanding of letter identification and reading}}
+For most sighted people, the small raised dot patterns that configure braille characters feel like little more than an undifferentiated textured surface. Similarly, when we see graphemes of an alphabet that we are unfamiliar with, it is hard to distinguish among the different symbols that, for the untrained eye, look ``alike.'' However, expert readers (of any writing system) automatically extract the critical features in letters, mostly unbothered by their accidental characteristics. Indeed, there is a long tradition in the visual word recognition literature that has reliably demonstrated that the extraction of the relevant letter features to form abstract orthographic representations is quite robust to many manipulations (see Carreiras et al., 2012; Dehaene et al., 2005; Grainger et al., 2008; Pelli et al., 2006). On this general basis, many studies have been devoted to the examination of the similarity/confusability of letters in various alphabets (e.g., Roman: Simpson et al., 2013; see also Mueller \& Weidemann, 2012 for a review; Arabic: Boudelaa et al., 2020; Wiley et al., 2016), which has allowed researchers to design and conduct studies on letter similarity effects while reading Pathak et al. (2019), as well as on the factors that shape our ability to extract letter features, such as alphabet expertise (e.g., Wiley et al., 2016).
 
 In visual reading research, a consensus has emerged regarding the extraction of features from the retinal image; in other words, we do not simply use the pattern of pixels, but instead we use lines, angles, and curves as the building blocks for letter recognition. However, braille letter perception has been far less studied and, therefore, its theoretical accounts have been discussed and examined in a smaller extent. Here we aim to understand what the features of braille letters are, and whether such features change depending on braille literacy.
 
 Braille is unique among writing systems for many reasons. Of course, the most obvious one is that it was developed to be used by blind people though the sense of touch. Hence, it was devised taking into account the specific characteristics of the sensory modality at play, reflecting a compromise between amount of information and the skin's acuity. Importantly, the braille system is also significantly different from other contemporary writing systems because it is a modern invention (published in 1829; Braille (1829)) that has remained essentially unchanged since Louis Braille engineered it. In contrast, visual writing systems currently in used have evolved through cultural contact and ergonomic constraints over thousands of years.
 
-Braille is a system of embossed dots whose basic unit is \emph{the cell}, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity. Indeed, as Millar (2003) said, \enquote{Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix} (p.~32). In addition, braille is highly standardized in the shape and size of the matrix with minor variations in the standards set by different regulatory bodies; hence, there are not \emph{glyphs} in braille.
+Braille is a system of embossed dots whose basic unit is \emph{the cell}, an array of 2x3 dots in which the different variations of raised dots form the elements of the written language (e.g., z = \braille{z}, ! = \braille{!}). Hence, an important characteristic of the braille writing system is its simplicity. Indeed, as Millar (2003) said, ``Braille characters are bound to be similar to each other since they all derive from the same (2×3) matrix'' (p.~32). In addition, braille is highly standardized in the shape and size of the matrix with minor variations in the standards set by different regulatory bodies; hence, there are not \emph{glyphs} in braille.
 
-An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet}, the first 10 characters in the latin alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, adding a dot in the 3rd position \braille{k l m n o p q r s t}, the next group of letters (u - z) also repeat the pattern but add a dot in the 6th position \braille{u v x y z}. The w, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}. {\colorbox{darkyellow}{\sffamily\scriptsize\bfseries\color{white}{pga}}}{\sffamily\small\itshape\color{darkyellow}{"Later developments have include braille characters that are specific to particular langauges, for example, in English there areletter combiations such as "th" \braille{{th}} and "ch" \braille{{ch}}, and in Spanish there are character for accepted letters like á \braille{{of}} or ñ \braille{{er}}}}" .
+An explanation of how Luis Braille devised the system is in order. As can be seen in Figure \ref{fig:BrailleAlphabet}, the first 10 characters in the alphabet (a-j) are written using the top two rows of dots \braille{a b c d e f g h i j}, the next ten letters (k-t) repeat the patterns of the previous ten, adding a dot in the 3rd position \braille{k l m n o p q r s t}, the next group of letters (u - z) also repeat the pattern but add a dot in the 6th position \braille{u v x y z}. The w, not being part of the French alphabet when Louis Braille created this writing system, was later assigned the character \braille{w}.
 
 {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{briefly what has been done regarding confusion matrices and letter perception}}
 
@@ -179,7 +232,7 @@ An explanation of how Luis Braille devised the system is in order. As can be see
 
 {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{letter perception: millar}}
 
-One of the initial hypotheses on braille letter perception suggested that braille letters were perceived holistically, by their \enquote{global shape} (e.g., {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{CITE: Nolan \& Kederis, 1969}}). Nonetheless, in a series of experiments, {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{CITE: Millar 1977 a, b, 1985, see also 2003...}} showed that was not the case, since \ldots{}{\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{explain results: high accurafcy in same/different but not able to recall/drawing...}}. Indeed, Millar suggested that braille lacks prominent features and that letter perception in braille initially depends on dot density (\enquote{texture}), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other -\textgreater{} spatial organization)
+One of the initial hypotheses on braille letter perception suggested that braille letters were perceived holistically, by their ``global shape'' (e.g., {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{CITE: Nolan \& Kederis, 1969}}). Nonetheless, in a series of experiments, {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{CITE: Millar 1977 a, b, 1985, see also 2003...}} showed that was not the case, since \ldots{}{\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{explain results: high accurafcy in same/different but not able to recall/drawing...}}. Indeed, Millar suggested that braille lacks prominent features and that letter perception in braille initially depends on dot density (``texture''), and that once learning has taken place, then shape coding occurs (i.e., the dots within a character can be located by reference to each other -\textgreater{} spatial organization)
 
 \ldots{} {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{link to what we're doing -- even though "braille letters are bound to be similar to each other"...are all of them equally similar?}}
 
@@ -197,7 +250,7 @@ It is unclear from the literature the extent to which braille letters are simila
 \item
   Expertise effects in letter perception
 \item
-  Dots/position weights -\textgreater{} is any position more important? Given that we know how it was created\ldots{}(dot 3, 6\ldots{})
+  Dots/position weights -\textgreater{} is any position more important? Given that we know how it was created\ldots(dot 3, 6\ldots)
 \end{itemize}
 
 {\colorbox{blue}{\sffamily\scriptsize\bfseries\color{white}{abl}}}{\sffamily\small\itshape\color{blue}{importance}}
@@ -240,7 +293,7 @@ The study used all possible 2-letter combinations (n = 676) pairs. Out of those 
 \hypertarget{procedure}{%
 \subsubsection{Procedure}\label{procedure}}
 
-The experiment took place individually in a quiet room. We placed the refreshable braille display + moving platform system in the pull-out keyboard tray of the desktop, to avoid participants seeing the braille characters, and the keyboard used to respond on the desktop. Participants were instructed to place their index fingertip on the start position (after the first 3D sticker), to let the braille display slide against it, and to classify the two letters perceived as being \emph{the same} two letters or as being two \emph{different} letters--the letters \enquote{m} or \enquote{n} on the keyboard, respectively, with the non-dominant hand.
+The experiment took place individually in a quiet room. We placed the refreshable braille display + moving platform system in the pull-out keyboard tray of the desktop, to avoid participants seeing the braille characters, and the keyboard used to respond on the desktop. Participants were instructed to place their index fingertip on the start position (after the first 3D sticker), to let the braille display slide against it, and to classify the two letters perceived as being \emph{the same} two letters or as being two \emph{different} letters--the letters ``m'' or ``n'' on the keyboard, respectively, with the non-dominant hand.
 
 The braille display moved for 5 cm at 38.9 mm/s (35.9 mm/rev x 65 rpm / 60). This speed was chosen considering previous studies on passive touch (see Vega-Bermudez et al., 1991), as well as our own experience testing it. After moving said distance, the display stopped until participants responded and reset its position during the one-second ITI. The experimental session took around 30 minutes to complete.
 
@@ -429,11 +482,11 @@ z & 1.108 & 1.102 & 1.089 & 1.163 & 1.058 & 1.089 & 1.050 & 0.960 & 1.001 & 0.99
 \begin{itemize}
 \tightlist
 \item
-  file = \enquote{motor\_control\_BF-ino}
+  file = ``motor\_control\_BF-ino''
 \item
   speed = 7000rpm (left to right); 260 rpm (right to left --\textgreater{} because of Miguel)
 \item
-  distance = 250 steps (\textasciitilde{}4.5cm)
+  distance = 250 steps (\textasciitilde4.5cm)
 \end{itemize}
 
 \hypertarget{remember.-to-calculate-speed}{%
@@ -653,6 +706,7 @@ z & 1.055 & 1.025 & 1.040 & 1.037 & 1.021 & 1.020 & 1.010 & 0.997 & 1.001 & 1.03
 \setlength{\leftskip}{0.5in}
 
 \hypertarget{refs}{}
+\begin{CSLReferences}{1}{0}
 \leavevmode\hypertarget{ref-Boudelaa_2020}{}%
 Boudelaa, S., Perea, M., \& Carreiras, M. (2020). Matrices of the frequency and similarity of arabic letters and allographs. \emph{Behavior Research Methods}, \emph{52}(5), 1893--1905. \url{https://doi.org/10.3758/s13428-020-01353-z}
 
@@ -668,11 +722,20 @@ Dehaene, S., Cohen, L., Sigman, M., \& Vinckier, F. (2005). The neural code for 
 \leavevmode\hypertarget{ref-grainger2008letter}{}%
 Grainger, J., Rey, A., \& Dufau, S. (2008). Letter perception: From pixels to pandemonium. \emph{Trends in Cognitive Sciences}, \emph{12}(10), 381--387.
 
+\leavevmode\hypertarget{ref-Marcet_2018}{}%
+Marcet, A., \& Perea, M. (2018). Can i order a burger at rnacdonalds.com? Visual similarity effects of multi-letter combinations at the early stages of word recognition. \emph{Journal of Experimental Psychology: Learning, Memory, and Cognition}, \emph{44}(5), 699--706. \url{https://doi.org/10.1037/xlm0000477}
+
+\leavevmode\hypertarget{ref-Marcet_2017}{}%
+Marcet, A., \& Perea, M. (2017). Is nevtral {NEUTRAL}? Visual similarity effects in the early phases of written-word recognition. \emph{Psychonomic Bulletin {\&} Review}, \emph{24}(4), 1180--1185. \url{https://doi.org/10.3758/s13423-016-1180-9}
+
 \leavevmode\hypertarget{ref-Millar_2003}{}%
 Millar, S. (2003). \emph{Reading by touch}. Routledge. \url{https://doi.org/10.4324/9780203359440}
 
 \leavevmode\hypertarget{ref-Mueller_2012}{}%
 Mueller, S. T., \& Weidemann, C. T. (2012). Alphabetic letter identification: Effects of perceivability, similarity, and bias. \emph{Acta Psychologica}, \emph{139}(1), 19--37. \url{https://doi.org/10.1016/j.actpsy.2011.09.014}
+
+\leavevmode\hypertarget{ref-Pathak_2019}{}%
+Pathak, A., Velasco, C., \& Calvert, G. A. (2019). Identifying counterfeit brand logos: On the importance of the first and last letters of a logotype. \emph{European Journal of Marketing}, \emph{53}(10), 2109--2125. \url{https://doi.org/10.1108/ejm-09-2017-0586}
 
 \leavevmode\hypertarget{ref-pelli2006feature}{}%
 Pelli, D. G., Burns, C. W., Farell, B., \& Moore-Page, D. C. (2006). Feature detection and letter identification. \emph{Vision Research}, \emph{46}(28), 4646--4674.
@@ -683,6 +746,9 @@ Simpson, I. C., Mousikou, P., Montoya, J. M., \& Defior, S. (2013). A letter vis
 \leavevmode\hypertarget{ref-Wiley_2016}{}%
 Wiley, R. W., Wilson, C., \& Rapp, B. (2016). The effects of alphabet and expertise on letter perception. \emph{Journal of Experimental Psychology: Human Perception and Performance}, \emph{42}(8), 1186--1203. \url{https://doi.org/10.1037/xhp0000213}
 
+\end{CSLReferences}
+
 \endgroup
+
 
 \end{document}
