@@ -1,0 +1,470 @@
+---
+title: "Appendix TouchScope"
+output:
+  pdf_document: default
+---
+
+The sections in this appendix are: 
+
+1. Data quality control
+2. Data analyses:
+  - Descriptive statistics
+  - Inferential statistics for the mean RT and accuracy data
+  
+3. The R code used to create Figure 1
+4. The bash code used to present the stimuli on the braille display
+5. Additional references
+
+
+```{r setup, include=TRUE, echo=FALSE}
+
+set.seed(4321)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+knitr::opts_chunk$set(error = TRUE)
+
+```
+
+
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE}
+
+library(MASS)
+library(dplyr)
+library(readr)
+library(tidyverse)
+library(knitr)
+library("papaja")
+library(ggplot2)
+library(loo)
+library(bridgesampling)
+library(brms)
+library(rstan)
+library(kableExtra)
+library(lme4)
+
+
+## Save compiled models:
+rstan_options(auto_write = TRUE)
+rstan_options(silent = TRUE, open_progress=FALSE,show_messages=FALSE)
+
+
+## Parallelize the chains using all the cores:
+options(mc.cores = parallel::detectCores())
+
+
+# To solve some conflicts between  packages
+select <- dplyr::select
+extract <- rstan::extract
+
+# Solves a problem with V8
+rstan_options(javascript = FALSE)
+```
+
+
+
+# 1. Data quality control
+
+
+After we designed the study, but before starting data collection, we established the following criteria as a data quality plan (see Gomez, Anderson, & Baciero, 2017):
+
+
+a. The accuracy for each subject should be above 51%.
+
+b. Every subject should have done the total number of trials.
+
+c. RTs for each trial have to be in between 200 and 10000 ms.
+
+d. Responses made by pressing a key other than the two established should be less than 20% of the total responses for each subject.
+
+e. Every pair of letters must have at least 14 responses.
+
+```{r raw data set, message=FALSE, warning=FALSE}
+
+load("RawData.RData") 
+```
+
+
+### a. The accuracy for each subject should be above 51%.
+
+```{r, message=FALSE, warning=FALSE}
+
+AllData_Raw %>% 
+  group_by(Subject) %>%
+  summarise(MeanAcc_Subj = mean(accuracy)) %>%
+  filter(MeanAcc_Subj < .51)
+
+```
+
+6 participants are below our threshold, therefore we removed them:
+
+```{r, message=FALSE, warning=FALSE}
+
+DataClean <- AllData_Raw %>%
+  filter(Subject != "P53E1" & Subject !="P69E2" & Subject !="P6E1" & Subject !="P77E2" & Subject !="P85E1" & Subject !="P89E2")
+
+```
+
+
+### b. Every subject should have done the total number of trials.
+
+```{r}
+
+table(DataClean$Subject)
+
+```
+
+
+### c.  RTs for each trial have to be in between 200 and 12000 ms.
+
+```{r, message=FALSE, warning=FALSE}
+
+DataClean12<- DataClean%>%
+  filter(RT>.2 & RT < 12)
+
+```
+
+### d.Responses made by pressing a key other than the two established should be less than 20% of the total responses for each subject.
+
+```{r, message=FALSE, warning=FALSE}
+
+DataClean12 %>%
+  group_by(Key) %>%
+  count()
+
+DataClean <- DataClean12%>%
+  filter(Key == "m" | Key == "n")
+
+```
+
+### e.  Every pair of different letters must have at least 14 responses.
+
+```{r}
+
+DifferentE1<- DataClean12%>%
+  filter(rubric=="n",
+         Experiment == 1)%>%
+  select(IT1,IT2,Key)%>%
+  group_by(IT1,IT2)%>%
+  count
+
+FewResponsesE1<- DifferentE1%>%
+  filter(n<14)
+
+DifferentE2<- DataClean12%>%
+  filter(rubric=="n",
+         Experiment == 2)%>%
+  select(IT1,IT2,Key)%>%
+  group_by(IT1,IT2)%>%
+  count
+
+FewResponsesE2<- DifferentE2%>%
+  filter(n<14)
+
+
+###########################################
+
+DifferentE1.1<- AllData_Raw%>%
+  filter(rubric=="n",
+         Experiment == 1)%>%
+  select(IT1,IT2,Key)%>%
+  group_by(IT1,IT2)%>%
+  count
+
+min(DifferentE1.1$n)
+
+DifferentE2.1<- AllData_Raw%>%
+  filter(rubric=="n",
+         Experiment == 2)%>%
+  select(IT1,IT2,Key)%>%
+  group_by(IT1,IT2)%>%
+  count
+
+min(DifferentE2.1$n)
+```
+
+```{r}
+
+
+#save(DataClean12, file = "DataClean12.RData")
+
+```
+
+\newpage
+
+# 2. Data analyses
+
+## Descriptives:
+
+```{r}
+
+Means_Exp_Cond_12 <- DataClean12%>%
+ group_by(Experiment, rubric)%>%
+  summarise(mean(accuracy),
+            mean(RT),
+            q1=quantile(RT, .1),
+            q9=quantile(RT, .9),
+            median(RT),
+            sd(RT))%>%
+  ungroup()%>%
+  mutate(`Mean Accuracy` = round(`mean(accuracy)`,3),
+         `Mean RT`= round(`mean(RT)`,3),
+         `Median RT`= round(`median(RT)`,3),
+         `SD RT` = round(`sd(RT)`,3),
+         `Trial Type` =as_factor(if_else(rubric == "m","Same","Different")),
+         Procedure = as_factor(if_else(Experiment == 1,"Active","Passive")),
+         `RT distribution` = "") %>%
+  select(Procedure,`Trial Type`,`Mean Accuracy`, `Mean RT`, `Median RT`, `SD RT`, `RT distribution` )
+
+
+DataClean12%>%
+  filter(Experiment==1) -> Active
+
+
+DataClean12%>%
+  filter(Experiment==2) -> Passive
+
+
+DataClean12%>%
+  group_nest(Experiment,rubric)-> x
+
+list(x[[3]][[1]][[5]], x[[3]][[2]][[5]], x[[3]][[3]][[5]], x[[3]][[4]][[5]]) -> y
+
+Means_Exp_Cond_12 %>%
+kbl(booktabs = T, align = "c") %>%
+column_spec(7, image = spec_hist(y,breaks = 42, width = 700, height = 170,xaxt = "s"))%>%
+kable_styling(full_width = F, font_size = 20, position = "float_left")-> Table1
+#save_kable(Table1, "Table1.pdf")
+
+```
+
+\newpage
+
+```{r Table 1, fig.width= 1}
+
+#Table 1 in main text:
+
+Table1
+
+```
+
+\newpage
+
+```{r RT Variability}
+
+# SD for RT in the active condition:
+sd(Active$RT)
+
+# SD for RT in the passive condition:
+sd(Passive$RT)
+
+```
+
+*ADD 2 COLUMNS WITH ITEM NUMBER (DIFFERENT ORDER OR ORDER INDEPENDENT)*
+
+### a) Bayesian t-test by subjects for active and passive groups
+
+
+```{r bayes factors}
+
+# same = 0.5, different = -0.5
+Active %>% mutate(rubricC = ifelse(rubric == "m",0.5,-0.5)) -> Active
+Passive %>% mutate(rubricC = ifelse(rubric == "m",0.5,-0.5)) -> Passive
+
+
+#ACCURACY ###############################################################################
+
+## Acc by subjects in Active
+
+E1_Same_Acc <- Active%>%
+  filter(rubricC == 0.5)%>%
+  group_by(Subject)%>%
+  summarise(MAcc = mean(accuracy))
+
+E1_Diff_Acc <- Active%>%
+  filter(rubricC == -0.5)%>%
+  group_by(Subject)%>%
+  summarise(MAcc = mean(accuracy))
+
+## Acc by subjects in Passive
+
+E2_Same_Acc <- Passive%>%
+  filter(rubricC == 0.5)%>%
+  group_by(Subject)%>%
+  summarise(MAcc = mean(accuracy))
+
+E2_Diff_Acc <- Passive%>%
+  filter(rubricC == -0.5)%>%
+  group_by(Subject)%>%
+  summarise(MAcc = mean(accuracy))
+
+BayesFactor::ttestBF(E1_Same_Acc$MAcc, E1_Diff_Acc$MAcc, paired = T) # Evidence of effect ("same" trials more accurate than "different" trials in Active group)
+BayesFactor::ttestBF(E2_Same_Acc$MAcc, E2_Diff_Acc$MAcc, paired = T) # Evidence of effect ("same" trials more accurate than "different" trials in Passive group)
+
+
+#RT ######################################################################################
+
+## RT by subjects in Active
+
+E1_Same_RT <- Active%>%
+  filter(rubricC == 0.5)%>%
+  group_by(Subject)%>%
+  summarise(MRT = mean(RT))
+
+E1_Diff_RT <- Active%>%
+  filter(rubricC == -0.5)%>%
+  group_by(Subject)%>%
+  summarise(MRT = mean(RT))
+
+## RT by subjects in Passive
+
+E2_Same_RT <- Passive%>%
+  filter(rubricC == 0.5)%>%
+  group_by(Subject)%>%
+  summarise(MRT = mean(RT))
+
+E2_Diff_RT <- Passive%>%
+  filter(rubricC == -0.5)%>%
+  group_by(Subject)%>%
+  summarise(MRT = mean(RT))
+
+BayesFactor::ttestBF(E1_Same_RT$MRT, E1_Diff_RT$MRT, paired = T) # Evidence of no effect (no difference in RT between "same" and "different" trials in Active group)
+BayesFactor::ttestBF(E2_Same_RT$MRT, E2_Diff_RT$MRT, paired = T) # Evidence of no effect (no difference in RT between "same" and "different" trials in Passive group)
+
+
+```
+
+## Inferential statistics for accuracy and RT measures:
+
+```{r Accuracy}
+
+# # bayesian linear mixed effects models
+# 
+# 
+#       BLME_Acc_np<- brms::brm(data = DataClean12, accuracy ~ Experiment * rubric +
+#                                        (1|Subject),
+#                                  warmup = 1000,
+#                                  iter = 5000, 
+#                                  chains = 4, 
+#                                  family = bernoulli(),
+#                                  inits  = "random",
+#                                  control = list(adapt_delta = 0.95),
+#                                  cores  = 4)
+# 
+#       #save(BLME_Acc_np, file = "BLME_Acc_np.RData")
+# 
+# 
+# load("BLME_Acc_np.RData") 
+# summary(BLME_Acc_np)
+# 
+# 
+# 
+#       BLME_Acc_np_2<- brms::brm(data = DataClean12, accuracy ~ Experiment * rubric +
+#                                        (1 + rubric|Subject) + (1+ Experiment|Item),
+#                                  warmup = 1000,
+#                                  iter = 5000, 
+#                                  chains = 4, 
+#                                  family = bernoulli(),
+#                                  inits  = "random",
+#                                  control = list(adapt_delta = 0.95),
+#                                  cores  = 4)
+# 
+#       #save(BLME_Acc_np_2, file = "BLME_Acc_np_2.RData")
+# 
+# 
+# load("BLME_Acc_np_2.RData") 
+# summary(BLME_Acc_np_2)
+# 
+
+
+
+# frequentist linear mixed effects models
+
+F_ModelAcc<- glmer(accuracy ~ Experiment * rubric + (1|Subject) ,
+                   data = DataClean12, family = binomial)
+summary(F_ModelAcc)
+
+
+# Exploration of the interaction using lmer:
+
+
+glmer(accuracy ~ rubric +(1|Subject), data=Active, family = binomial) -> F_Model_acc_active
+summary(F_Model_acc_active)
+
+glmer(accuracy ~ rubric +(1|Subject), data=Passive, family = binomial) -> F_Model_acc_passive
+summary(F_Model_acc_passive)
+
+
+```
+
+
+
+
+```{r RT}
+# # bayesian linear mixed effects models
+# 
+#       BLME_RT_np<- brms::brm(data = DataClean12, RT ~ ~ Experiment * rubric +
+#                                        (1 + rubric|Subject) + (1+ Experiment|Item),
+#                             warmup = 1000,
+#                             iter = 5000,
+#                             chains = 4,
+#                             family  = exgaussian(),
+#                             control = list(adapt_delta = 0.95),
+#                             inits  = "random",
+#                             cores  = 4)
+# 
+#       #save(BLME_RT_np, file = "BLME_RT_np.RData")
+#     
+# 
+# load("BLME_RT_np.RData") 
+# summary(BLME_RT_np)
+# 
+# summary(BLME_RT_np)
+
+
+# frequentist linear mixed effects models
+
+F_ModelRT<- lme4::glmer(RT ~ Experiment * rubric + (1|Subject),
+                           data = DataClean12,
+                           family = Gamma(link="identity"))
+
+summary(F_ModelRT)
+
+```
+
+
+
+```{r Correlation}
+
+Active%>%
+  mutate(Pairs = paste(IT1, IT2))%>%
+  group_by(Pairs)%>%
+  summarise(MRT_a = mean(RT),
+            Macc_a = mean(accuracy))-> act
+
+Passive%>%
+  mutate(Pairs = paste(IT1, IT2))%>%
+  group_by(Pairs)%>%
+  summarise(MRT_p = mean(RT),
+            Macc_p = mean(accuracy))-> pas
+
+to_corr <- merge(act, pas)
+
+cor.test(to_corr$Macc_a,to_corr$Macc_p)
+
+CorPlot<-ggplot(to_corr, mapping = aes(x=Macc_a, y=Macc_p)) +
+  geom_point(shape = 20, size = 2, col = "gray50") +
+  ylim(0,1) +
+  xlab("Active procedure") +
+  ylab("Passive procedure") +
+  theme_apa()+
+    stat_smooth(method = "lm",
+        col = "forestgreen",
+        se = T,
+        size = 1)
+
+CorPlot
+
+#ggsave("CorPlot.png")
+```
+
+

@@ -1,0 +1,776 @@
+---
+title: "Data Hygiene E1"
+author: "Ana Baciero"
+date: "April, 2018"
+output:
+  html_document:
+    df_print: paged
+---
+# Data quality plan
+
+1. Every subject should have done the same amount of trials.
+2. The accuracy for each subject should be above 50%.
+3. RTs for each trial should be higher than 200 ms.
+4. RTs for each trial should be lower than 15000 ms.
+
+5. Every pair must have at least 15 responses.
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(smacof)
+library(pmr)
+library(shape)
+library(gplots)
+library(RColorBrewer)
+library(rafalib)
+library(dendextend)
+```
+
+#Experiment1: Data Set
+```{r}
+
+Participant<-rep(1:85,each=260)
+
+E1.P1.rw<- read.delim(as.character("P1E1"),header = T)
+E1.P1<- E1.P1.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:265)
+
+E1.P2.rw<- read.delim(as.character("P2E1"),header = T)
+E1.P2<- E1.P2.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P3.rw<- read.delim(as.character("P3E1"),header = T)
+E1.P3<- E1.P3.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P4.rw<- read.delim(as.character("P4E1"),header = T)
+E1.P4<- E1.P4.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P5.rw<- read.delim(as.character("P5E1"),header = T)
+E1.P5<- E1.P5.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P6.rw<- read.delim(as.character("P6E1"),header = T)
+E1.P6<- E1.P6.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P7.rw<- read.delim(as.character("P7E1"),header = T)
+E1.P7<- E1.P7.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P8.rw<- read.delim(as.character("P8E1"),header = T)
+E1.P8<- E1.P8.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P9.rw<- read.delim(as.character("P9E1"),header = T)
+E1.P9<- E1.P9.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P10.rw<- read.delim(as.character("P10E1"),header = T)
+E1.P10<- E1.P10.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P11.rw<- read.delim(as.character("P11E1"),header = T)
+E1.P11<- E1.P11.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P12.rw<- read.delim(as.character("P12E1"),header = T)
+E1.P12<- E1.P12.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P13.rw<- read.delim(as.character("P13E1"),header = T)
+E1.P13<- E1.P13.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P14.rw<- read.delim(as.character("P14E1"),header = T)
+E1.P14<- E1.P14.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P15.rw<- read.delim(as.character("P15E1"),header = T)
+E1.P15<- E1.P15.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P16.rw<- read.delim(as.character("P16E1"),header = T)
+E1.P16<- E1.P16.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P17.rw<- read.delim(as.character("P17E1"),header = T)
+E1.P17<- E1.P17.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P18.rw<- read.delim(as.character("P18E1"),header = T)
+E1.P18<- E1.P18.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P19.rw<- read.delim(as.character("P19E1"),header = T)
+E1.P19<- E1.P19.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P20.rw<- read.delim(as.character("P20E1"),header = T)
+E1.P20<- E1.P20.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P21.rw<- read.delim(as.character("P21E1"),header = T)
+E1.P21<- E1.P21.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P22.rw<- read.delim(as.character("P22E1"),header = T)
+E1.P22<- E1.P22.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P23.rw<- read.delim(as.character("P23E1"),header = T)
+E1.P23<- E1.P23.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P24.rw<- read.delim(as.character("P24E1"),header = T)
+E1.P24<- E1.P24.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P25.rw<- read.delim(as.character("P25E1"),header = T)
+E1.P25<- E1.P25.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P26.rw<- read.delim(as.character("P26E1"),header = T)
+E1.P26<- E1.P26.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P27.rw<- read.delim(as.character("P27E1"),header = T)
+E1.P27<- E1.P27.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P28.rw<- read.delim(as.character("P28E1"),header = T)
+E1.P28<- E1.P28.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P29.rw<- read.delim(as.character("P29E1"),header = T)
+E1.P29<- E1.P29.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P30.rw<- read.delim(as.character("P30E1"),header = T)
+E1.P30<- E1.P30.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P31.rw<- read.delim(as.character("P31E1"),header = T)
+E1.P31<- E1.P31.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P32.rw<- read.delim(as.character("P32E1"),header = T)
+E1.P32<- E1.P32.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P33.rw<- read.delim(as.character("P33E1"),header = T)
+E1.P33<- E1.P33.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P34.rw<- read.delim(as.character("P34E1"),header = T)
+E1.P34<- E1.P34.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P35.rw<- read.delim(as.character("P35E1"),header = T)
+E1.P35<- E1.P35.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P36.rw<- read.delim(as.character("P36E1"),header = T)
+E1.P36<- E1.P36.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P37.rw<- read.delim(as.character("P37E1"),header = T)
+E1.P37<- E1.P37.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P38.rw<- read.delim(as.character("P38E1"),header = T)
+E1.P38<- E1.P38.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P39.rw<- read.delim(as.character("P39E1"),header = T)
+E1.P39<- E1.P39.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P40.rw<- read.delim(as.character("P40E1"),header = T)
+E1.P40<- E1.P40.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P41.rw<- read.delim(as.character("P41E1"),header = T)
+E1.P41<- E1.P41.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P42.rw<- read.delim(as.character("P42E1"),header = T)
+E1.P42<- E1.P42.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P43.rw<- read.delim(as.character("P43E1"),header = T)
+E1.P43<- E1.P43.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P44.rw<- read.delim(as.character("P44E1"),header = T)
+E1.P44<- E1.P44.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P45.rw<- read.delim(as.character("P45E1"),header = T)
+E1.P45<- E1.P45.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P46.rw<- read.delim(as.character("P46E1"),header = T)
+E1.P46<- E1.P46.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P47.rw<- read.delim(as.character("P47E1"),header = T)
+E1.P47<- E1.P47.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P48.rw<- read.delim(as.character("P48E1"),header = T)
+E1.P48<- E1.P48.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P49.rw<- read.delim(as.character("P49E1"),header = T)
+E1.P49<- E1.P49.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P50.rw<- read.delim(as.character("P50E1"),header = T)
+E1.P50<- E1.P50.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P51.rw<- read.delim(as.character("P51E1"),header = T)
+E1.P51<- E1.P51.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P52.rw<- read.delim(as.character("P52E1"),header = T)
+E1.P52<- E1.P52.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P53.rw<- read.delim(as.character("P53E1"),header = T)
+E1.P53<- E1.P53.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P54.rw<- read.delim(as.character("P54E1"),header = T)
+E1.P54<- E1.P54.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P55.rw<- read.delim(as.character("P55E1"),header = T)
+E1.P55<- E1.P55.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P56.rw<- read.delim(as.character("P56E1"),header = T)
+E1.P56<- E1.P56.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P57.rw<- read.delim(as.character("P57E1"),header = T)
+E1.P57<- E1.P57.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P58.rw<- read.delim(as.character("P58E1"),header = T)
+E1.P58<- E1.P58.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P59.rw<- read.delim(as.character("P59E1"),header = T)
+E1.P59<- E1.P59.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P60.rw<- read.delim(as.character("P60E1"),header = T)
+E1.P60<- E1.P60.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P61.rw<- read.delim(as.character("P61E1"),header = T)
+E1.P61<- E1.P61.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P62.rw<- read.delim(as.character("P62E1"),header = T)
+E1.P62<- E1.P62.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P63.rw<- read.delim(as.character("P63E1"),header = T)
+E1.P63<- E1.P63.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P64.rw<- read.delim(as.character("P64E1"),header = T)
+E1.P64<- E1.P64.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P65.rw<- read.delim(as.character("P65E1"),header = T)
+E1.P65<- E1.P65.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P66.rw<- read.delim(as.character("P66E1"),header = T)
+E1.P66<- E1.P66.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+#P67.rw<- read.delim(as.character("P67"),header = T)
+#P67<- P67.rw%>%
+ #separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+#select("IT1","IT2","Key", "RT","miss")%>%
+  #slice(7:266)
+
+E1.P68.rw<- read.delim(as.character("P68E1"),header = T)
+E1.P68<- E1.P68.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P69.rw<- read.delim(as.character("P69E1"),header = T)
+E1.P69<- E1.P69.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P70.rw<- read.delim(as.character("P70E1"),header = T)
+E1.P70<- E1.P70.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P71.rw<- read.delim(as.character("P71E1"),header = T)
+E1.P71<- E1.P71.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P72.rw<- read.delim(as.character("P72E1"),header = T)
+E1.P72<- E1.P72.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P73.rw<- read.delim(as.character("P73E1"),header = T)
+E1.P73<- E1.P73.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P74.rw<- read.delim(as.character("P74E1"),header = T)
+E1.P74<- E1.P74.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P75.rw<- read.delim(as.character("P75E1"),header = T)
+E1.P75<- E1.P75.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P76.rw<- read.delim(as.character("P76E1"),header = T)
+E1.P76<- E1.P76.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P77.rw<- read.delim(as.character("P77E1"),header = T)
+E1.P77<- E1.P77.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P78.rw<- read.delim(as.character("P78E1"),header = T)
+E1.P78<- E1.P78.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P79.rw<- read.delim(as.character("P79E1"),header = T)
+E1.P79<- E1.P79.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P80.rw<- read.delim(as.character("P80E1"),header = T)
+E1.P80<- E1.P80.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P81.rw<- read.delim(as.character("P81E1"),header = T)
+E1.P81<- E1.P81.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P82.rw<- read.delim(as.character("P82E1"),header = T)
+E1.P82<- E1.P82.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:265)
+
+E1.P83.rw<- read.delim(as.character("P83E1"),header = T)
+E1.P83<- E1.P83.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:265)
+
+E1.P84.rw<- read.delim(as.character("P90E1"),header = T)
+E1.P84<- E1.P84.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P85.rw<- read.delim(as.character("P91E1"),header = T)
+E1.P85<- E1.P85.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+E1.P86.rw<- read.delim(as.character("P92E1"),header = T)
+E1.P86<- E1.P86.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(7:266)
+
+Data.rw.E1<- rbind(E1.P1,E1.P2,E1.P3,E1.P4,E1.P5,E1.P6,E1.P7,E1.P8,E1.P9,E1.P10,E1.P11,E1.P12,E1.P13,E1.P14,E1.P15,E1.P16,E1.P17,E1.P18,E1.P19,E1.P20,E1.P21,E1.P22,E1.P23,E1.P24,E1.P25,E1.P26,E1.P27,E1.P28,E1.P29,E1.P30,E1.P31,E1.P32,E1.P33,E1.P34,E1.P35,E1.P36,E1.P37,E1.P38,E1.P39,E1.P40,E1.P41,E1.P42,E1.P43,E1.P44,E1.P45,E1.P46,E1.P47,E1.P48,E1.P49,E1.P50,E1.P51,E1.P52,E1.P53,E1.P54,E1.P55,E1.P56,E1.P57,E1.P58,E1.P59,E1.P60,E1.P61,E1.P62,E1.P63,E1.P64,E1.P65,E1.P66,E1.P68,E1.P69,E1.P70,E1.P71,E1.P72,E1.P73,E1.P74,E1.P75,E1.P76,E1.P77,E1.P78,E1.P79,E1.P80,E1.P81,E1.P82,E1.P83,E1.P84,E1.P85,E1.P86)
+
+Data.rw.E1<-cbind(Participant,Data.rw.E1)
+Data.rw.E1<- Data.rw.E1%>% 
+  mutate(rubric = if_else(IT1==IT2,1,0))%>%
+  mutate(accuracy = if_else(Key =="m" & rubric == "1", 1,
+                            if_else(Key == "n" & rubric == "0",1,0)))%>%
+  mutate(RT=as.numeric(RT))
+
+```
+
+# Some More
+```{r}
+P<- as.data.frame(rep(86:90, each=190))
+colnames(P)<-c("Participant")
+
+E1.P87.rw<- read.delim(as.character("P85E1"),header = T)
+E1.P87<- E1.P87.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:195)
+
+E1.P88.rw<- read.delim(as.character("P86E1"),header = T)
+E1.P88<- E1.P88.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:195)
+
+E1.P89.rw<- read.delim(as.character("P87E1"),header = T)
+E1.P89<- E1.P89.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:195)
+
+E1.P90.rw<- read.delim(as.character("P88E1"),header = T)
+E1.P90<- E1.P90.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:195)
+
+E1.P91.rw<- read.delim(as.character("P89E1"),header = T)
+E1.P91<- E1.P91.rw%>%
+  separate(IT1.IT2.KEY.RT,  c("a","b","c","d","e","IT1","IT2","f","g","h","i","j","k","Key","RT","miss"), sep = " ")%>%
+  select("IT1","IT2","Key", "RT","miss")%>%
+  slice(6:195)
+
+
+Data.rw.moreE1<- rbind(E1.P87, E1.P88, E1.P89, E1.P90, E1.P91)
+                     
+Data.rw.moreE1<-cbind(P,Data.rw.moreE1)
+Data.rw.moreE1<- Data.rw.moreE1%>% 
+  mutate(rubric = if_else(IT1==IT2,1,0))%>%
+  mutate(accuracy = if_else(Key =="m" & rubric == "1", 1,
+                            if_else(Key == "n" & rubric == "0",1,0)))%>%
+  mutate(RT=as.numeric(RT))
+
+```
+
+
+# THE DATA SET
+
+```{r}
+
+All.E1.rw<- rbind.data.frame(Data.rw.E1,Data.rw.moreE1)
+
+```
+
+
+## 1. Every subject should have done the same amount of trials: 260 the first 85, 190 the last 5.
+
+```{r}
+
+table(All.E1.rw$Participant)
+
+#Althouh some NA values:
+
+Data.analysis.E1<- All.E1.rw %>%
+  select(Participant,IT1, IT2, Key, rubric, accuracy, RT)%>%
+  na.omit()
+
+table(Data.analysis.E1$Participant)
+
+#Removed 36 observations (23050 - 23014)
+```
+
+
+## 2. The accuracy for each subject should be above 50%.
+```{r}
+
+Data.acc.E1<-Data.analysis.E1%>%
+  select(Participant,accuracy)%>%
+  group_by(Participant)%>%
+  summarise_if(is.numeric,mean)
+
+Data.acc.E1<.5
+
+#Remove P6 and P86
+
+Data.analysis.E1<- Data.analysis.E1%>%
+  mutate(delete = if_else(Participant=="6",0,
+                          if_else (Participant == "86",0,1)))%>%
+  filter(delete==1)%>%
+  select(Participant,IT1, IT2, Key, rubric, accuracy, RT)
+
+Data.acc.E1<-Data.analysis.E1%>%
+  select(Participant,accuracy)%>%
+  group_by(Participant)%>%
+  summarise_if(is.numeric,mean)
+
+Data.acc.E1<.5
+
+mean(Data.acc.E1$accuracy)
+
+#Removed 450 observations (23014 - 22564)
+
+```
+
+
+## 3 & 4. RTs for each trial should be higher than 200 ms, and lower than 15000 ms.
+```{r}
+
+Data.RT.E1.02<-Data.analysis.E1%>%
+  select(RT)%>%
+  filter(RT<0.2)
+Data.RT.E1.10<-Data.analysis.E1%>%
+  select(RT)%>%
+  filter(RT>15)
+
+
+Data.analysis.E1<-Data.analysis.E1%>%
+  filter(RT>0.2)%>%
+  filter(RT<15)
+
+#Removed 323 obsercations (22564 - 22241)
+
+
+```
+
+
+## 4. Every pair must have at least 15 responses. --> 14!
+
+```{r}
+DifferentE1<- Data.analysis.E1%>%
+  filter(rubric=="0")
+
+Data.diffE1<-Data.analysis.E1%>%
+  filter(rubric=="0")%>%
+  select(IT1,IT2,Key)%>%
+  group_by(IT1,IT2)%>%
+  count
+
+FewResponses<- Data.diffE1%>%
+  filter(n<15)
+
+```
+
+
+## Clean Data Set
+
+```{r}
+
+write_csv(Data.analysis.E1, path = "CleanData.E1_v2.csv", col_names = T)
+
+```
+
+
+####################################################################################
+
+##More partcipants List
+
+```{r}
+stim.1 <- letters
+stim.2 <- letters
+pair <- array(dim=26*26)
+type <- array(dim = 26*26)
+
+for(i in 1:26){
+  for(j in 1:26){
+    if (stim.1[i] == stim.2[j]) {
+      type [(i-1)*26+j] <- 0
+    }
+    else {
+      type[(i-1)*26+j] <- 1
+    }
+    pair[(i-1)*26+j] <- paste(stim.1[i], stim.2[j])
+  }
+}
+
+type <- as.character(type)
+pairs <- as.character(pair)
+all<- as.data.frame(cbind(pairs, type))
+
+same.rw<- all%>%
+  select(pairs)%>%
+  filter(type==0)
+
+same.rw<- as.data.frame(paste("    ",same.rw$pairs,"    "))
+same.rw<- as.data.frame(same.rw)
+
+same.104 <- rbind(same.rw,same.rw,same.rw, same.rw)
+colnames(same.104)<- c("stimuli")
+
+same <- as.character(sample(same.104$stimuli, 95, replace = F))
+same<- as.data.frame(same)
+colnames(same)<-c("stimuli")
+different <- as.data.frame(paste(FewResponses$IT1, FewResponses$IT2))
+colnames(different)<-c("stimuli")
+different<- as.data.frame(paste("    ",different$stimuli,"    "))
+colnames(different)<-c("stimuli")
+
+New<- rbind.data.frame(same,different)
+New.random<- as.data.frame(sample(New$stimuli))
+colnames(New.random)<-c("stimuli")
+Practice <- as.data.frame (c("h n","d d", "n r", "p z", "x x"))
+colnames(Practice)<- c("stimuli")
+Practice<- as.data.frame(paste("    ",Practice$stimuli,"    "))
+colnames(Practice)<-c("stimuli")
+
+NewList<- rbind.data.frame(Practice,New.random)
+
+write.table(NewList,file ="LN.txt", row.names = F, col.names = F, quote = F)
+
+```
+

@@ -1,0 +1,308 @@
+---
+title: "E1Analysis"
+author: "Ana Baciero"
+date: "October 24, 2018"
+output: pdf_document
+---
+
+```{r}
+library(rcompanion)
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(smacof)
+library(pmr)
+library(shape)
+library(gplots)
+library(RColorBrewer)
+library(rafalib)
+library(dendextend)
+```
+
+#Data Set
+```{r}
+E1 <- read_csv("CleanData.E1_v2.csv")
+```
+
+#Descriptives
+
+```{r}
+# table(E1$RT>10)
+#E1->E1.all
+#E1.all%>% filter(RT<10) ->E1
+
+E1<- E1%>%
+  mutate(same = if_else(IT1 == IT2,1,0))
+
+E1.ParticipantAcc <- E1%>%
+  select(Participant,accuracy)%>%
+  group_by(Participant)%>%
+  summarise_if(is.numeric,mean)
+
+E1.meanAcc<-groupwiseMean(accuracy ~ same, data = E1, conf = 0.95, digits = 3 )
+
+E1.ParticipantRT <- E1%>%
+  select(Participant,RT)%>%
+  group_by(Participant)%>%
+  summarise_if(is.numeric,mean)
+
+E1.meanRT <- groupwiseMean(RT ~ same, data = E1, conf = 0.95, digits = 3 )
+
+Freq<- E1%>%filter(rubric=="0")%>%
+  select(IT1,IT2,Key)%>%
+  group_by(IT1,IT2)%>%
+  count
+
+table(Freq$n)
+
+hist(E1$RT)
+```
+
+#Confusion Matrix
+
+
+```{r}
+##Acc
+confusability.freqs.E1<-xtabs(accuracy ~ IT1 + IT2, data=E1)
+confusability.accuracy.E1<-tapply(E1$accuracy, list(E1$IT1, E1$IT2),mean)
+
+confusability.accuracy.E1%>%
+  heatmap (margins = c(1, 1))
+
+#heatmap(confusability.accuracy.E1, Rowv = NA, Colv = NA)
+#kable(round(confusability.accuracy.E1,2))
+
+#NotSimetrical<- round(confusability.accuracy.E1, digits = 2)
+#write.csv(NotSimetrical, "NotSimetrical_E1.csv", quote = F)
+
+
+##Simetrical:
+combined.E1 <- (confusability.accuracy.E1 + t(confusability.accuracy.E1))/2
+kable(round(combined.E1, digits = 2))
+
+combined.E1%>%
+  heatmap (margins = c(1, 1))
+
+towriteE1<-combined.E1%>%
+  round(3)
+
+```
+
+```{r}
+write.csv(towriteE1, file = "confusionE1.csv", quote = F)
+```
+
+##Difficult
+```{r}
+x1<- confusability.accuracy.E1<.30
+sum(x1)
+
+which(x1, arr.ind = T)
+
+```
+
+## Correlation items in both orders(ab&ba)
+```{r}
+
+library(gdata)
+library(ggplot2)
+
+
+confusability.accuracy.E1.1<-tapply(E1$accuracy, list(E1$IT1, E1$IT2),mean)
+upperTriangle(confusability.accuracy.E1.1, diag=FALSE, byrow=FALSE) -> IT1_IT2_a
+
+confusability.accuracy.E1.2<-tapply(E1$accuracy, list(E1$IT2, E1$IT1),mean)
+upperTriangle(confusability.accuracy.E1.2, diag=FALSE, byrow=FALSE) -> IT2_IT1_a
+
+cor.test(IT1_IT2_a, IT2_IT1_a)
+
+ScatterE1<- as_data_frame(cbind(IT1_IT2_a, IT2_IT1_a))
+
+ggplot(ScatterE1, aes(IT1_IT2_a, IT2_IT1_a))+
+  geom_point(size = 2)+
+  geom_smooth(method = lm)
+
+HistE1<- ScatterE1%>%
+  gather(key = Value, value = accuracy)
+
+ggplot(HistE1, aes(x = accuracy, color= Value))+
+  geom_histogram(fill="white", binwidth = .1)+
+  facet_grid("Value")
+
+
+```
+
+
+
+#RTs
+```{r}
+confusability.freqs.E1.RT<-E1%>%
+  filter(accuracy==1)
+confusability.freqs.E1.RT <- xtabs(RT ~ IT1 + IT2, data=E1)
+
+confusability.RT.E1<- E1%>%
+  filter(accuracy==1)
+confusability.RT.E1<-tapply(E1$RT, list(E1$IT1, E1$IT2),mean)
+
+confusability.RT.E1%>%
+  heatmap (margins = c(1, 1))
+
+##Simetrical:
+combinedRT.E1 <- (confusability.RT.E1 + t(confusability.RT.E1))/2
+kable(round(combinedRT.E1, digits = 2))
+
+combinedRT.E1%>%
+  heatmap (margins = c(1, 1))
+
+plot(combined.E1, combinedRT.E1)
+
+
+Stim <- E1
+Stim$stimuli <- paste(Stim$IT1, Stim$IT2)
+
+stim.acc <- Stim%>%
+  select(stimuli, accuracy)%>%
+  group_by(stimuli)%>%
+  summarise_if(is.numeric,mean)
+
+stim.rt <- Stim %>%
+  select(stimuli, RT)%>%
+  group_by(stimuli)%>%
+  summarise_if(is.numeric,mean)
+  
+
+plot(stim.acc$accuracy,stim.rt$RT, pch="", cex=.5)
+abline(lm(stim.rt$RT~stim.acc$accuracy))
+text(stim.acc$accuracy,stim.rt$RT, labels=stim.rt$stimuli)
+
+cor.test(stim.acc$accuracy,stim.rt$RT)
+```
+
+#Dendrogram
+
+```{r}
+
+#distance matrix:
+dist.res.combinedE1<-dist(combined.E1, method = "euclidian", diag = T)
+hc.E1<- hclust(dist.res.combinedE1)
+dend.combinedE1 <- as.dendrogram(hc.E1)
+plot(dend.combinedE1)
+
+dend.E1.4<- dend.combinedE1 %>% set("branches_k_color", value = c("dodgerblue2", "darkorchid3", "darkolivegreen3","darkorange2"), k = 4) %>%
+  plot(las =1, main = "A")
+
+```
+
+```{r}
+dist.res.combinedE1RT<-dist(combinedRT.E1, method = "euclidian", diag = T)
+hc.E1RT<- hclust(dist.res.combinedE1RT)
+dend.combinedE1RT <- as.dendrogram(hc.E1RT)
+plot(dend.combinedE1RT)
+
+dend.E1RT.5<- dend.combinedE1RT %>% set("branches_k_color", value = c("dodgerblue2", "darkorchid3","darkorange2"), k = 5) %>%
+  plot()
+  
+```
+
+#Multidimensional scaling
+
+## Scree plot
+```{r}
+
+dissimilarityE1 <- dist.res.combinedE1
+
+mds_results.1 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 1,itmax = 5000)
+mds_results.2 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 2,itmax = 5000)
+mds_results.3 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 3,itmax = 5000)
+mds_results.4 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 4,itmax = 5000)
+mds_results.5 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 5,itmax = 5000)
+mds_results.6 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 6,itmax = 5000)
+mds_results.7 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 7,itmax = 5000)
+
+number_dimensions <- seq(1,7)
+stresses <- c(mds_results.1$stress,mds_results.2$stress,mds_results.3$stress,mds_results.4$stress,mds_results.5$stress,mds_results.6$stress, mds_results.7$stress)
+plot(number_dimensions,stresses)
+lines(number_dimensions,stresses)
+
+```
+
+#2
+
+```{r}
+
+mds_results.2.E1 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 2,itmax = 5000)
+mds_results.2.E1<- read_csv("coordinates2D_E1.csv")
+
+
+plot(mds_results.2.E1, main = "A", xlim)
+
+coordinates.E1.2 <- mds_results.2.E1$conf
+coordinates.E1.2<- round(coordinates.E1.2,3)
+
+```
+
+
+```{r}
+write.csv(coordinates.E1.2, file = "coordinates2D_E1.csv", quote = F)
+```
+
+```{r}
+coordE1<- read_csv("coordinates2D_E1.csv")
+plot(coordE1$D1,coordE1$D2, main = "A", pch = coordE1$X1, las = 1, xlab = "Dimension 1", ylab = "Dimension 2")
+```
+
+#3
+```{r}
+
+mds_results.3 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 3,itmax = 5000)
+
+#best.3 <-10000
+#  for (i in 1:100){
+ #   res1.3 <- mds(dissimilarityE1,type="ordinal",init="random")
+  #  if (res1.3$stress < best.3){
+   #   mds_results.3 <- res1.3
+    #  best.3 <- res1.3$stress
+     #}
+    #}
+
+plot(mds_results.3,plot.type="confplot")
+
+
+coordinates.E1.3 <- mds_results.3$conf
+round(coordinates.E1.3,3)
+```
+
+#4
+```{r}
+
+mds_results.4 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 4,itmax = 5000)
+
+plot(mds_results.4,plot.type="confplot")
+
+coordinates.E1.4 <- mds_results.4$conf
+round(coordinates.E1.4,3)
+```
+
+
+#5
+```{r}
+mds_results.5 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 5,itmax = 5000)
+
+plot(mds_results.5,plot.type="confplot")
+
+coordinates.E1.5 <- mds_results.5$conf
+round(coordinates.E1.5,3)
+```
+
+#6
+```{r}
+mds_results.6 <- mds(dissimilarityE1,type="ordinal",init="random", ndim = 6,itmax = 5000)
+
+plot(mds_results.6,plot.type="confplot")
+
+coordinates.E1.6 <- mds_results.6$conf
+round(coordinates.E1.6,3)
+```
+
+
+
