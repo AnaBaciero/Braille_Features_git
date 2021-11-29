@@ -39,12 +39,15 @@ CleanBF%>%
   summarize(n_distinct(SubjectID))
 
 
+
+
+
 CleanBF%>%
   group_by(Pairs)%>%
   summarise(meanRT = mean(RT),
-            meanAcc = mean(Accuracy)) -> x
+            meanAcc = mean(Accuracy))  -> summary_by_pair
 
-cor(x$meanRT, x$meanAcc)
+cor(summary_by_pair$meanRT, summary_by_pair$meanAcc)
 
 ```
 
@@ -284,13 +287,13 @@ cluster_assignments_rt <- cutree(hclust(dist.res.rt, method = "ward.D2"), 4)
 ## 3. MODELS (for different pairs)
 
 
-\pga{A form to validate the results obtained in the analyses above is to explore if the abstract features interpreted from the hierarchical clustering can accont for the data better than other reasanable alternatives.   To this end, we implement three hypotheses of what constitute a braille feature.  These three explnations fullfill the following criteria
+\pga{A form to validate the results obtained in the analyses above is to explore if the abstract features interpreted from the hierarchical clustering can account for the data better than other reasanable alternatives.   To this end, we implement three hypotheses of what constitute a braille feature.  These three explnations fullfill the following criteria
 
     a) No two different letters should have all features in common
     b) Knowing the features, one should infer the letter.
     c) No feature should be the result of the combination other features. 
 
-The three hypotheses under consideration vary in their level of abstraction; the first two hypothesys are based on *tixels* (i.e., tactile pixels), Tixel, in haptic devices are the smallest transmition unit in a tactile matrix. Evindently, the standard braille cell has 6 tixels. The first hypothesis simply assumes that the features of braille characters are just tixels that correspond to the raised dots. Similarly, the second hypothesis assumes that the feaatures of braille characters are the tixels of both raised and unraised dots. In contrast, the third hypothesis is not  
+The three hypotheses under consideration vary in their level of abstraction; the first two hypothesys are based on *tixels* (i.e., tactile pixels), Tixel, in haptic devices are the smallest transmition unit in a tactile matrix. Evindently, the standard braille cell has 6 tixels. The first hypothesis simply assumes that the features of braille characters are just tixels that correspond to the raised dots. Similarly, the second hypothesis assumes that the feaatures of braille characters are the tixels of both raised and unraised dots. In contrast, the third hypothesis is not tixel based, but it is instead based on the the more abstract features that emerged from our analysis of the hierarchical clustering.
 
 $Hypothesis_{raise}$: 
     
@@ -441,7 +444,7 @@ braille.features.2<- braille.features%>%
 ## Abstract features (x8): Verticals (V_c1, V_c2), Horizontals (H_1, H_2, H_3), Gaps (MiddleGap, BottomGap), Dot3
 
 
-braille.features.3<- braille.features%>%
+braille.features.3 <- braille.features%>%
   group_by(Pairs)%>%
   mutate(Vertical1_1 = if_else(Dot1_1 == 1 & Dot2_1 == 1,1,0),
          Vertical1_2 = if_else(Dot3_1 == 1 & Dot2_1 == 1,1,0),
@@ -734,3 +737,231 @@ ggplot(toplot2, mapping = aes(x=DotNumber, y=MRTms_byPair)) +
 
 ```
 
+
+
+
+
+Pablo messing with things:
+
+```{r}
+library(GGally)
+braille.features.1[,2:7]%>% rowSums ->model1a.similarity
+braille.features.2[,2:7]%>% rowSums ->model1b.similarity
+braille.features.3[,2:8]%>% rowSums ->model2.similarity
+
+tibble(braille.features.1[,1],
+       model1a.similarity,
+       model1b.similarity,
+       model2.similarity) %>%
+  inner_join(summary_by_pair)-> all.models 
+
+
+all.models %>%
+  ggplot(aes(x=model1a.similarity,y=model1b.similarity))+
+  geom_jitter(alpha=.1,height = 0.01, width = .01)
+
+all.models %>%
+filter(model1a.similarity==0)
+
+all.models %>%
+  select(-Pairs) %>%
+  ggpairs()
+
+
+
+all.models %>%
+filter(model1a.similarity==0 & meanAcc>.7)
+
+```
+
+There are a number of zeroes in the model 1b. So to check what letters the correspond, this is to check which ones there are 
+
+
+
+
+
+```{r}
+library(geometry)
+read_delim("TestingFeatures2.csv", ";")->ftrs.mantiene.cienpies.mod
+
+euclidean <- function(a, b) sqrt(sum((a - b)^2))
+
+
+similarity.ftrs.mantiene <- tibble(
+    letter1= character(),
+    letter2= character(),
+    match = numeric(),
+    wiley = numeric()
+)
+
+
+temp <- tibble(
+    letter1= "x",
+    letter2= "x",
+    match = 0,
+    wiley = 0
+)
+
+
+for(i in 1:26){
+  for(j in 1:26){
+    temp$letter1 <- as.character(ftrs.mantiene.cienpies.mod[i,1])
+    temp$letter2 <- as.character(ftrs.mantiene.cienpies.mod[j,1])
+    temp$match   <- sum(ftrs.mantiene.cienpies.mod[i,3:11] ==ftrs.mantiene.cienpies.mod[j,3:11])
+    temp$wiley   <- sum(ftrs.mantiene.cienpies.mod[i,3:11] ==1 & ftrs.mantiene.cienpies.mod[j,3:11]==1)*2 / (sum(ftrs.mantiene.cienpies.mod[i,3:11]+ ftrs.mantiene.cienpies.mod[j,3:11]))
+    bind_rows(similarity.ftrs.mantiene,temp)->similarity.ftrs.mantiene
+  }
+}
+
+
+
+
+similarity.ftrs.mantiene %>%
+  mutate(Pairs = paste(letter1, letter2, sep = " "))-> similarity.ftrs.mantiene
+
+all.models %>% 
+  select(-model2.similarity) %>%
+  inner_join(similarity.ftrs.mantiene) -> all.modelssim
+
+
+all.modelssim %>%
+  select(-Pairs, 
+         -letter1, 
+         -letter2,
+         meanRT,
+         meanAcc,
+         model1a.similarity,
+         model1b.similarity,
+         match,
+         wiley
+         ) %>%
+  rename(
+    fea.match = match,
+    fea.wiley = wiley,
+    tix.match = model1b.similarity,
+    tix.wiley = model1a.similarity
+    )%>%
+  ggpairs()
+
+
+
+
+```
+
+
+
+
+```{r}
+
+CleanBF%>%
+  group_by(Subject) %>%
+  summarize(minRT = min(RT)) -> CleanBF.minRT
+
+
+CleanBF %>%
+  inner_join(CleanBF.minRT) %>%
+  arrange(Subject) %>%
+  mutate(newRT =RT-minRT) -> CleanBF.noT0
+
+
+CleanBF.noT0%>%
+  group_by(Pairs)%>%
+  summarise(meannewRT = mean(newRT),
+            meanAcc = mean(Accuracy))  -> summary_by_pair.noT0
+
+
+tibble(braille.features.1[,1],
+       model1a.similarity,
+       model1b.similarity,
+       model2.similarity) %>%
+  inner_join(summary_by_pair.noT0) -> all.models.noT0
+
+
+all.models.noT0 %>% 
+  select(-model2.similarity) %>%
+  inner_join(similarity.ftrs.mantiene) -> all.models.noT0
+
+all.models.noT0 %>%
+  select(-Pairs, 
+         -letter1, 
+         -letter2) %>%
+  ggpairs()
+
+```
+
+
+Matrices for Ana
+
+```{r}
+
+feature.wiley.mat <- tibble(
+    letter1= character(),
+    letter2= character(),
+    f1 = numeric(),
+    f2 = numeric(),
+    f3=numeric(),
+    f4=numeric(),
+    f5=numeric(),
+    f6=numeric(),
+    f7=numeric(),
+    f8=numeric(),
+    f9=numeric()
+)
+
+
+temp <- tibble(
+    letter1= "x",
+    letter2= "x",
+    f1 = 0,
+    f2 = 0,
+    f3=0,
+    f4=0,
+    f5=0,
+    f6=0,
+    f7=0,
+    f8=0,
+    f9=0
+    )
+
+  
+  
+for(i in 1:26){
+  for(j in 1:26){
+    temp$letter1 <- as.character(ftrs.mantiene.cienpies.mod[i,1])
+    temp$letter2 <- as.character(ftrs.mantiene.cienpies.mod[j,1])
+#    temp$match   <- (ftrs.mantiene.cienpies.mod[i,3:11] ==ftrs.mantiene.cienpies.mod[j,3:11])
+    temp[3:11]   <- (ftrs.mantiene.cienpies.mod[i,3:11] ==1 & ftrs.mantiene.cienpies.mod[j,3:11]==1)*2 / (sum(ftrs.mantiene.cienpies.mod[i,3:11]+ ftrs.mantiene.cienpies.mod[j,3:11]))
+    bind_rows(feature.wiley.mat,temp)->feature.wiley.mat
+  }
+}
+
+
+feature.match.mat <- tibble(
+    letter1= character(),
+    letter2= character(),
+    f1 = numeric(),
+    f2 = numeric(),
+    f3=numeric(),
+    f4=numeric(),
+    f5=numeric(),
+    f6=numeric(),
+    f7=numeric(),
+    f8=numeric(),
+    f9=numeric()
+)
+
+ 
+for(i in 1:26){
+  for(j in 1:26){
+    temp$letter1 <- as.character(ftrs.mantiene.cienpies.mod[i,1])
+    temp$letter2 <- as.character(ftrs.mantiene.cienpies.mod[j,1])
+    temp$match   <- (ftrs.mantiene.cienpies.mod[i,3:11] ==ftrs.mantiene.cienpies.mod[j,3:11])
+)
+    bind_rows(feature.match.mat,temp)->feature.match.mat
+  }
+}
+
+
+
+
+````
